@@ -1,0 +1,37 @@
+{
+  "name": "bigp-anywhere",
+  "version": "1.0.0",
+  "description": "Command that helps scaffolding / running an express + webpack + vue Single-File-Component setup anywhere.",
+  "main": "cli.js",
+  "repository": "https://github.com/bigp/bigp-anywhere.git",
+  "author": "Pierre Chamberlain",
+  "license": "MIT",
+  "bin": {
+    "bigp-anywhere": "./cli.js",
+    "bpa": "./cli.js"
+  },
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "chokidar": "^2.0.3",
+    "colors": "^1.2.1",
+    "cookie-parser": "^1.4.3",
+    "cookie-session": "^2.0.0-beta.3",
+    "css-loader": "^0.28.11",
+    "express": "^4.16.3",
+    "express-session": "^1.15.6",
+    "fs-extra": "^5.0.0",
+    "inquirer": "^6.0.0",
+    "lodash": "^4.17.5",
+    "memory-fs": "^0.4.1",
+    "moment": "^2.22.0",
+    "node-sass": "^4.8.3",
+    "opn": "^5.3.0",
+    "prompt-promise": "^1.0.3",
+    "sass-loader": "^7.0.1",
+    "socket.io": "^2.1.0",
+    "style-loader": "^0.20.3",
+    "vue-loader": "^14.2.2",
+    "vue-template-compiler": "^2.5.16",
+    "yargs": "^11.0.0"
+  }
+}
