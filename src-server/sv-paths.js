@@ -13,7 +13,7 @@ const paths = {
 	_bpa: {
 		root: _root,
 		libs: _internal,
-		client: currentDir + '/src-client',
+		client: _root + '/src-client',
 		public: _root + '/public',
 		dist: _root + '/public/dist',
 		private: _root + '/.private',

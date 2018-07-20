@@ -1,0 +1,13 @@
+.v-middle { vertical-align: middle; }
+.v-top {vertical-align: top; }
+.v-bottom {vertical-align: bottom; }
+.padded { @include padded; }
+.padded-1 { @include padded(10px); }
+.padded-2 { @include padded(20px); }
+.padded-3 { @include padded(30px); }
+.padded-4 { @include padded(40px); }
+.padded-5 { @include padded(50px); }
+
+.abs { position: absolute; }
+.fixed { position: fixed; }
+.init-hidden { display: none; }

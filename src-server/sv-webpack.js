@@ -36,7 +36,7 @@ _.extend(SELF, {
 
 				const ret = stats.toJson();
 
-				if (ret.errors.length > 0) return _catch(ret.errors);
+				if (ret.errors.length > 0) return _catch(ret.errors.join(' \n'));
 				if (ret.warnings.length > 0) cbWarnings && cbWarnings(ret.warnings);
 
 				const asset = ret.assets[0];

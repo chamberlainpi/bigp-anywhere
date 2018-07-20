@@ -51,9 +51,7 @@ module.exports = {
 	io: { serveClient: false },
 
 	webpack: {
-		entry: {
-			'bundle': entry,
-		},
+		entry: { 'bundle': entry },
 
 		output: {
 			path: path.resolve($$$.paths.dist),
@@ -88,6 +86,8 @@ module.exports = {
 			alias: {
 				'~bpa': $$$.paths._bpa.root,
 				'~bpa-libs': $$$.paths._bpa.libs,
+				'~bpa-js': $$$.paths._bpa.client + '/js',
+				'~bpa-vue': $$$.paths._bpa.client + '/vue',
 				'~extensions': $$$.paths._bpa.libs + '/extensions.js',
 				'~libs': $$$.paths.libs,
 			}
