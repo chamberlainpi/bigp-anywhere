@@ -1,16 +1,14 @@
-//const webpack = require('webpack');
+const webpack = require('webpack');
 const path = require('path');
 const entry = $$$.paths.client + '/js/entry.js';
 
-const cookieSecret = 'stitch';
-
 module.exports = {
 	isSlowRefresh: false,
-	autoOpen: true,
+	autoOpen: false,
     web: {
         port: 9999,
         routes: {
-			'/js/extensions.js': $$$.paths._bpa.libs + '/extensions.js',
+			'/js/extensions.js': $$$.paths._bpa.server + '/extensions.js',
 
 			'^': [
 				'*MEMORY*',
@@ -24,28 +22,15 @@ module.exports = {
 		},
     },
 
-	spritesmith: {
-		quality: 80,
-		padding: 2,
-		//output: $$$.paths.public + "/dist/atlas.png",
-	},
-
-	cookieSession: {
-		name: 'session',
-		keys: [cookieSecret]
-	},
-
-	session: {
-		secret: cookieSecret,
-		resave: true,
-		saveUninitialized: false,
-		//cookie:{secure:false}
-	},
-
-	redisStore: {
-		host: 'localhost',
-		port: 6379,
-		ttl :  260
+	sass: {
+		delayUpdate: 500,
+		output: $$$.paths.public + '/css/styles.css',
+		compiler: {
+			file: $$$.paths._bpa.client + '/css/-main.scss',
+			includePaths: [
+				$$$.paths.client + '/css'
+			]
+		},
 	},
 
 	io: { serveClient: false },
@@ -85,11 +70,11 @@ module.exports = {
 		resolve: {
 			alias: {
 				'~bpa': $$$.paths._bpa.root,
-				'~bpa-libs': $$$.paths._bpa.libs,
+				'~bpa-libs': $$$.paths._bpa.server,
 				'~bpa-js': $$$.paths._bpa.client + '/js',
 				'~bpa-vue': $$$.paths._bpa.client + '/vue',
-				'~extensions': $$$.paths._bpa.libs + '/extensions.js',
-				'~libs': $$$.paths.libs,
+				'~extensions': $$$.paths._bpa.server + '/extensions.js',
+				'~libs': $$$.paths.server,
 			}
 		},
 
@@ -100,7 +85,11 @@ module.exports = {
 		},
 
 		optimization: {
-			minimize: $$$.env==='prod',
-		}
+			minimize: $$$.env.isProd,
+		},
+
+		plugins: [
+			new webpack.DefinePlugin({ENV: $$$.env})
+		]
 	}
 };

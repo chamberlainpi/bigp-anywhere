@@ -14,7 +14,9 @@ function SELF(config) {
 		res.send({ok:1});
 	});
 
-	if(config.autoOpen===false) return;
+	if(!config.autoOpen) {
+		return trace("AUTO-OPEN DISABLED!".red);
+	}
 
 	setTimeout(SELF.checkIfNeedsToOpen, MAX_TIME_TO_OPEN);
 }
@@ -22,6 +24,7 @@ function SELF(config) {
 SELF.checkIfNeedsToOpen = function() {
 	const ms = moment().diff(lastChecked, 'milliseconds');
 	if(ms < MAX_TIME_TO_OPEN) return $$$.io.emit('auto-open-already');
+
 	trace(`Opening project in browser (ms: ${ms})...`.cyan);
 	opn(SELF.url);
 }

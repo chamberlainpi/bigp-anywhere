@@ -26,7 +26,7 @@ export default function SELF(config) {
 		}
 	});
 
-	_.forOwn(config.ui, (ui, name) => $$$.loadVueComp(name.remove('ui-'), ui));
+	_.forOwn(config.ui, (ui, name) => $$$.loadVueComp(name, ui));
 	_.forOwn(config.panels, (ui, name) => $$$.loadVueComp(name, ui));
 	_.forOwn(config.menus, (ui, name) => $$$.loadVueComp(name, ui));
 

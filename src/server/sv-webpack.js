@@ -12,7 +12,7 @@ function SELF(config) {
 	SELF.compiler = compiler;
 	SELF.fileChanged = output.path.mustEndWith('/').fixSlash() + output.filename;
 
-	if($$$.env==='dev') {
+	if($$$.env.isDev) {
 		compiler.inputFileSystem = fs;
 		compiler.outputFileSystem =  $$$.memFS;
 	} else {

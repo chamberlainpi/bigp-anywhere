@@ -22,7 +22,7 @@ SELF.doLoop = function() {
 		if(!persistent) {
 			traceClear();
 			persistent = cluster.fork();
-			trace(`MASTER #${process.pid} Started child process PID #${persistent.process.pid}.`);
+			trace($$$.env.name.toUpperCase().bgGreen + ` MASTER #${process.pid} Started child process PID #${persistent.process.pid}.`);
 		}
 
 		setTimeout(loop, 100);

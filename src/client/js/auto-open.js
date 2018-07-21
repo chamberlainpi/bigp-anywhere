@@ -20,7 +20,7 @@ export default function SELF() {
 			success: data => {
 				if(SELF._reattempts>0) {
 					trace('[SOCKET.IO] Reconnecting...');
-					$$$.io.connect(); //() => trace('[socket.io] Reconnected!')
+					$$$.io.connect();
 				}
 				SELF._reattempts = 0;
 				TweenMax.to(body, 0.8, {alpha:1.0, scale:1.0, ease: Sine.easeOut});

@@ -3,48 +3,55 @@
 const Events = require('events');
 global.$$$ = new Events();
 global._ = require('lodash');
-require('./src-server/extensions');
-require('./src-server/extensions-node');
+require('./src/server/extensions');
+require('./src/server/extensions-node');
 require('colors');
 
-$$$.paths = require('./src-server/sv-paths');
+$$$.paths = require('./src/server/sv-paths');
 
 const yargs = require('yargs');
-const cmdArguments = yargs
+const env = yargs
 	.alias('p','prod')
 	.alias('v','verbose')
 	.alias('x', 'exp')
 	.argv;
 
-if(cmdArguments.x) {
+if(env.x) {
 	require($$$.paths.experiments + "/_main.js");
 	return;
 }
 
-$$$.env = cmdArguments.p ? 'prod' : 'dev';
-$$$.isProd = $$$.env === 'prod';
-$$$.isDev = !$$$.isProd;
+const sv = $$$.paths._bpa.server;
 
-requireAuto('src-server/sv-restarter')(null, () => {
+$$$.env = _.extend(env, {
+	isProd: env.p===true,
+	isDev: !env.p,
+	name: env.p===true ? 'prod' : 'dev'
+});
+
+require(sv + '/sv-restarter')(null, () => {
 	const MFS = require('memory-fs');
-	const config = requireAuto('config');
+	const config = require($$$.paths._bpa.src + '/config');
+	const configProject = requireIf($$$.paths.src + '/config');
 
-	//_.extend( , configPriv);
+	_.extend(config, configProject);
 
 	$$$.config = config;
 	$$$.memFS = new MFS();
-	$$$.web = requireAuto('sv-web')(config);
-	$$$.watcher = requireAuto('sv-watcher')(config);
-	$$$.autoOpen = requireAuto('sv-auto-open')(config);
-	$$$.sass = requireAuto('sv-sass-compile')();
-	$$$.webpack = requireAuto('sv-webpack')(config.webpack);
-	$$$.stitch = requireAuto('sv-stitchweb')(config);
+	$$$.web = require(sv + '/sv-web')(config);
+	$$$.watcher = require(sv + '/sv-watcher')(config);
+	$$$.autoOpen = require(sv + '/sv-auto-open')(config);
+	$$$.sass = require(sv + '/sv-sass-compile')(config.sass);
+	$$$.webpack = require(sv + '/sv-webpack')(config.webpack);
+	$$$.index = requireAuto('index');
+
+	if(_.isFunction($$$.index)) $$$.index(config);
 
 	$$$.webpack.run()
 		.then(stats => { /* trace('WEBPACK COMPLETED'); */})
 		.catch(err => traceError(err));
 
 	if(process.argv.has('--testing')) {
-		requireAuto('sv-chai-helpers')(global);
+		require(sv + '/sv-chai-helpers')(global);
 	}
 });
