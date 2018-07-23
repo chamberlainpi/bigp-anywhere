@@ -30,7 +30,7 @@
 
 		mounted() {
 			$$$.fx.fadeIn(this.$el, true);
-            $$$.emit('dom-changed');
+            $$$.emit('@dom-changed');
 
 			$(this.$el).find('.modal-fader').click(() => {
 				this.fadeOut();

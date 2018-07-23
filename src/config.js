@@ -1,6 +1,7 @@
 const webpack = require('webpack');
 const path = require('path');
 const entry = $$$.paths.client + '/entry.js';
+const bpaPaths = $$$.paths._bpa;
 
 module.exports = {
 	isSlowRefresh: false,
@@ -8,12 +9,12 @@ module.exports = {
     web: {
         port: 9999,
         routes: {
-			'/js/extensions.js': $$$.paths._bpa.server + '/extensions.js',
+			'/js/extensions.js': bpaPaths.server + '/extensions.js',
 
 			'^': [
 				'*MEMORY*',
 				$$$.paths.public,
-				$$$.paths._bpa.public,
+				bpaPaths.public,
 			],
 
 			'/test': {
@@ -26,7 +27,7 @@ module.exports = {
 		delayUpdate: 500,
 		output: $$$.paths.public + '/css/styles.css',
 		compiler: {
-			file: $$$.paths._bpa.client + '/css/-main.scss',
+			file: bpaPaths.client + '/css/-main.scss',
 			includePaths: [
 				$$$.paths.client + '/css'
 			]
@@ -69,11 +70,11 @@ module.exports = {
 
 		resolve: {
 			alias: {
-				'~bpa': $$$.paths._bpa.root,
-				'~bpa-libs': $$$.paths._bpa.server,
-				'~bpa-js': $$$.paths._bpa.client + '/js',
-				'~bpa-vue': $$$.paths._bpa.client + '/vue',
-				'~extensions': $$$.paths._bpa.server + '/extensions.js',
+				'~bpa': bpaPaths.root,
+				'~bpa-libs': bpaPaths.server,
+				'~bpa-js': bpaPaths.client + '/js',
+				'~bpa-vue': bpaPaths.client + '/vue',
+				'~extensions': bpaPaths.server + '/extensions.js',
 				'~libs': $$$.paths.server,
 			}
 		},

@@ -44,7 +44,7 @@
 		}
 	});
 
-	function _css(styles, iterator) {
+	function _cssString(styles, iterator) {
 		const css = [];
 
 		_.forIn(styles, (value, key) => css.push(iterator(value, key)));
@@ -53,11 +53,11 @@
 	}
 
 	$$$.css = function(styles) {
-		return _css(styles, (value, key) => key + ': ' + value);
+		return _cssString(styles, (value, key) => key + ': ' + value);
 	};
 
 	$$$.css.vars = function(vars) {
-		return _css(vars, (value, key) => '--' + key + ': ' + value);
+		return _cssString(vars, (value, key) => '--' + key + ': ' + value);
 	};
 
 	$$$.send = function(obj) {

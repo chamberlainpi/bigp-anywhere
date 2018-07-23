@@ -11,8 +11,8 @@ const paths = _.extend(makePaths(projectRoot), {_bpa: makePaths(_root)});
 
 module.exports = paths;
 
-// module.paths.unshift(paths.node_modules.replace('/', '\\'));
-// module.paths = module.paths.slice(0, -3);
+module.paths.unshift(paths.node_modules.replace('/', '\\'));
+module.paths = module.paths.slice(0, -3);
 
 global.requireAuto = function(path) {
 	path = (path.has('.') ? path : path + '.js').mustStartWith('/');

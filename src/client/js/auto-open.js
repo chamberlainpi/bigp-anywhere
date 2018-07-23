@@ -42,11 +42,11 @@ export default function SELF() {
 					link.href = link.href.split('?')[0] + "?id=" + $$$.randID();
 				});
 
-				$$$.emit('EVENT.style-changed');
+				$$$.emit('@style-changed');
 				break;
 			case 'html':
 			case 'js':
-				$$$.emit('EVENT.force-reload');
+				$$$.emit('@force-reload');
 				break;
 
 			case 'scss':
@@ -58,7 +58,7 @@ export default function SELF() {
 		}
 	});
 
-	$$$.onLater('EVENT.force-reload', 100, () => {
+	$$$.onLater('@force-reload', 100, () => {
 		window.location.reload(true);
 	});
 
