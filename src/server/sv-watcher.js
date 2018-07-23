@@ -4,7 +4,7 @@
 
 const chokidar = require('chokidar');
 const anymatch = require('anymatch');
-const hasPublic = p => p.has('public/');
+const hasPublic = p => p.has('public/') || p.has('client/');
 const hasDist = p => p.has('dist/');
 const watchHandlers = [];
 const defaultConfig = {
@@ -44,7 +44,7 @@ function SELF(config) {
 				$$$.io.emit('file-changed', path);
 			}
 		} else {
-			trace(path);
+			trace("Changed file... " + path);
 			process.kill(process.pid);
 		}
 	});

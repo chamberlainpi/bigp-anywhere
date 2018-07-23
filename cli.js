@@ -16,10 +16,7 @@ const env = yargs
 	.alias('x', 'exp')
 	.argv;
 
-if(env.x) {
-	require($$$.paths.experiments + "/_main.js");
-	return;
-}
+if(env.x) return require($$$.paths.experiments + "/_main.js");
 
 const sv = $$$.paths._bpa.server;
 

@@ -1,6 +1,6 @@
 const webpack = require('webpack');
 const path = require('path');
-const entry = $$$.paths.client + '/js/entry.js';
+const entry = $$$.paths.client + '/entry.js';
 
 module.exports = {
 	isSlowRefresh: false,
@@ -49,7 +49,7 @@ module.exports = {
 					loader: 'babel-loader',
 					options: {
 						babelrc: true,
-						presets: ['@babel/preset-env'],
+						presets: ['@babel/preset-env']
 					}
 				}},
 				{ test: /\.vue$/, use: {

@@ -160,29 +160,35 @@
 				});
 			},
 
-			classy(obj, definition) {
+			classy(obj, ... definitions) {
 				const getsets = {};
 				let hasGetSets = false;
 
-				_.forOwn(definition, (valueOrFunc, name) => {
-					if(name.startsWith('$')) {
-						//This is a getter:
-						getsets[name] = {get:valueOrFunc};
-						hasGetSets = true;
-					} else if(name.startsWith('get_')) {
-						const shortname = name.remove('get_');
-						const setterName = 'set_' + shortname;
+				definitions.forEach(definition => {
+					if(!definition) return;
 
-						const getset = {get:valueOrFunc};
-						const setter = definition[setterName];
-						if(setter) getset.set = setter;
+					_.forOwn(definition, (valueOrFunc, name) => {
+						if(name.startsWith('$')) {
+							//This is a getter:
+							getsets[name] = {get:valueOrFunc};
+							hasGetSets = true;
+						} else if(name.startsWith('get_')) {
+							const shortname = name.remove('get_');
+							const setterName = 'set_' + shortname;
 
-						getsets[shortname] = getset;
-						hasGetSets = true;
-					} else if(!name.startsWith('set_')) {
-						obj[name] = valueOrFunc;
-					}
+							const getset = {get:valueOrFunc};
+							const setter = definition[setterName];
+							if(setter) getset.set = setter;
+
+							getsets[shortname] = getset;
+							hasGetSets = true;
+						} else if(!name.startsWith('set_')) {
+							obj[name] = valueOrFunc;
+						}
+					});
 				});
+
+
 
 				hasGetSets && _.getset(obj, getsets);
 
@@ -252,7 +258,13 @@
 		const inits = [];
 		const $$$ = GLOBALS.$$$ = cb => inits.push(cb);
 
-		$(document).ready(() => inits.forEach(cb => cb()));
+		$(document).ready(() => {
+			//Make this object an event-emitter:
+			_.extend($$$, EventEmitter.prototype);
+			$$$._events = {};
+
+			inits.forEach(cb => cb())
+		});
 	}
 
 	init();
