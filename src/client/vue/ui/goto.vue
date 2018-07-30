@@ -1,5 +1,5 @@
 <template>
-    <a class="smart-link" href="javascript:;" @mousedown="$app.gotoRoute(to)" v-forward-events>
+    <a href="javascript:;" @mousedown="$gotoRoute(to)" v-forward-events>
         <slot></slot>
     </a>
 </template>

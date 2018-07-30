@@ -3,8 +3,6 @@
  */
 
 (function() {
-	trace("HELPERS....");
-
 	_.extend(EventEmitter.prototype, {
 		onLater(name, framesOrMS, cb) {
 			if(framesOrMS<0) {
