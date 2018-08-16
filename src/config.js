@@ -36,7 +36,7 @@ module.exports = {
 		},
 	},
 
-	io: { serveClient: false },
+	socketIO: { serveClient: false },
 
 	webpack: {
 		entry: { 'bundle': entry },

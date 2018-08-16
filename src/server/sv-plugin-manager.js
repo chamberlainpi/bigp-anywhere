@@ -32,7 +32,7 @@ class CommandProxy {
 						const err = `Cannot call "${prop}" because it isn't defined on: `;
 						traceError(err.red + target.constructor.name);
 					} else {
-						queue.push({cb:method, target:this, args:args});
+						queue.push({cb:method, prop: prop, target:this, args:args});
 					}
 
 					this._prepare();
@@ -68,7 +68,7 @@ class CommandProxy {
 		//Clear the queue until next time:
 		priv.queue = [];
 
-		function next() {
+		function nextProcess() {
 			if(!queue.length) {
 				const done = priv.onDone;
 				priv.onDone = null;
@@ -82,10 +82,10 @@ class CommandProxy {
 				traceError(result.toString().red);
 			}
 
-			Promise.resolve(result).then(next);
+			return Promise.resolve(result).then(nextProcess);
 		}
 
-		next();
+		nextProcess();
 	}
 }
 
@@ -126,21 +126,44 @@ module.exports = class PluginManager extends CommandProxy {
 	}
 
 	_callEach(method, ... args) {
-		//trace("Calling method: ".yellow + method);
-		const failed = [];
+		const log = o => {
+			if(this.isSilent) return;
+			trace(o);
+		};
 
-		_.forOwn(this._modules, (plugin, key) => {
+		log("Calling method: ".yellow + method);
+		const failed = [];
+		const mods = this._modules;
+		let m = 0;
+
+		log("Start calling: ".green + method);
+
+		function nextCall() {
+			if(m>=mods.length) return onDone();
+
+			const plugin = mods[m++];
 			const func = plugin[method];
-			if(!func || key.startsWith('$') || key.startsWith('_')) {
+
+			if(!func) {
 				return failed.push(plugin.name);
 			}
 
-			func.apply(plugin, args);
-		});
+			const result = func.apply(plugin, args);
 
-		if(failed.length && !this.isSilent) {
-			trace(`Failed calling "${method}" on:\n`.red + failed.toPrettyList())
+			log(`${result} - ${method} [${plugin.name}]`.cyan);
+
+			return Promise.resolve(result).then(nextCall);
 		}
+
+		function onDone() {
+			if(failed.length) {
+				log(`Failed calling "${method}" on:\n`.red + failed.toPrettyList())
+			} else {
+				log("Done calling: ".red + method);
+			}
+		}
+
+		return nextCall();
 	}
 }
 

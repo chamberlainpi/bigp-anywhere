@@ -55,7 +55,7 @@ SELF.onError = (err, req, res, next) => {
 };
 
 SELF.serveFromMemory = function(req, res, next) {
-	const localURI = $$$.paths.public + req.url.split('?')[0];
+	const localURI = $$$.paths.public + req.url.before('?');
 	if(!req.url.has('.') || !$$$.memFS.existsSync(localURI)) {
 		return next();
 	}

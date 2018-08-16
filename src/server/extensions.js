@@ -19,7 +19,7 @@
 		const traceOnceTags = {};
 		GLOBALS.traceOnce = (tag, msg) => {
 			if(!msg) msg = tag;
-			else if(isNode) msg = `[${tag.toUpperCase()}]`.bgRed + `: ${msg}`;
+			else if(isNode) msg = `[${tag}]`.bgRed + `: ${msg}`;
 
 			if(traceOnceTags[tag]) return;
 			traceOnceTags[tag] = true;
@@ -37,6 +37,12 @@
 			},
 			combineWith(delim, arr) {
 				return this.split(delim).concat(arr);
+			},
+			before(char) {
+				return this.split(char, 1)[0];
+			},
+			after(char) {
+				return this.split(char).last();
 			},
 			ext() {
 				return this.split('.').pop().toLowerCase()
@@ -199,6 +205,12 @@
 				hasGetSets && _.getset(obj, getsets);
 
 				return obj;
+			},
+
+			delayPromise(t, v) {
+				return new Promise(function(resolve) {
+					setTimeout(resolve.bind(null, v), t)
+				});
 			},
 
 			/*
