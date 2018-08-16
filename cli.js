@@ -17,10 +17,12 @@ $$$.env = yargs
 $$$.paths = require('./src/server/sv-paths');
 $$$.plugins = require('./src/server/sv-plugin-manager').create();
 $$$.plugins
-	.loadFromPath($$$.paths.plugins)
 	.loadFromPath($$$.paths._bpa.plugins)
+	.loadFromPath($$$.paths.plugins)
 	.callEach('init')
 	.done(onReady);
+
+$$$.plugins.isSilent = true;
 
 $$$.config = $$$.mergeIfExists(
 	$$$.paths._bpa.src + '/config',
@@ -28,6 +30,7 @@ $$$.config = $$$.mergeIfExists(
 );
 
 function onReady() {
+	//For testing purposes, some experiments can be run here:
 	if($$$.env.x) return require($$$.paths.experiments + "/_main.js");
 
 	const isProd = $$$.env.p===true;
@@ -39,5 +42,6 @@ function onReady() {
 
 	$$$.plugins
 		.callEach('configure', $$$.config)
-		.callEach('addEvents');
+		.callEach('addEvents')
+		.callEach('start');
 }

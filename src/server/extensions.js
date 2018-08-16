@@ -126,6 +126,9 @@
 				}
 
 				return this;
+			},
+			toPrettyList() {
+				return this.map(a => ' - ' + a).join('\n');
 			}
 		});
 

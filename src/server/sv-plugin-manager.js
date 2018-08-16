@@ -3,41 +3,36 @@
  */
 const fs = require('fs-extra');
 
-var counter = 0;
-class CommandPromise {
+class CommandProxy {
 	constructor(extras) {
 		const priv = this._private = {
-			isNextTick: false,
+			isTicking: false,
 			queue: [],
 			self: {},
 			onDone: null,
 			extras: extras || {}
 		};
 
-		//const reserved = ['valueOf','inspect'];
-
 		return new Proxy(this, {
-			get(target, prop, bla) {
-				if((typeof prop) === 'symbol') { //} || reserved.has(prop)) {
+			get(target, prop) {
+				if((typeof prop) === 'symbol') {
 					return priv.self;
 				}
 
 				const exists = target[prop];
+				const queue = priv.queue;
+				const extras = priv.extras;
+				const _prop = '_' + prop;
+				const method = extras && prop in extras ? extras[prop] : target[_prop];
 
 				if(exists && (prop.startsWith('_') || !_.isFunction(exists))) return exists;
 
-				const queue = priv.queue;
-				const extras = priv.extras;
-
-				const _prop = '_' + prop;
-				let _realMethod = extras && prop in extras ? extras[prop] : target[_prop];
-
 				return function _proxyResolveMethod(... args) {
-					if(!_realMethod) {
+					if(!method) {
 						const err = `Cannot call "${prop}" because it isn't defined on: `;
 						traceError(err.red + target.constructor.name);
 					} else {
-						queue.push({cb:_realMethod, target:this, args:args});
+						queue.push({cb:method, target:this, args:args});
 					}
 
 					this._prepare();
@@ -55,12 +50,12 @@ class CommandPromise {
 	_prepare() {
 		const _this = this;
 		const priv = this._private;
-		if(priv.isNextTick) return;
 
-		priv.isNextTick = true;
+		if(priv.isTicking) return;
+		priv.isTicking = true;
 
 		process.nextTick(function _proxyNextTick() {
-			priv.isNextTick = false;
+			priv.isTicking = false;
 
 			_this._process();
 		});
@@ -83,6 +78,10 @@ class CommandPromise {
 			const current = queue.shift();
 			const result = current.cb.apply(current.target, current.args);
 
+			if(result instanceof Error) {
+				traceError(result.toString().red);
+			}
+
 			Promise.resolve(result).then(next);
 		}
 
@@ -90,7 +89,7 @@ class CommandPromise {
 	}
 }
 
-module.exports = class PluginManager extends CommandPromise {
+module.exports = class PluginManager extends CommandProxy {
 
 	static create() {
 		return new PluginManager();
@@ -99,6 +98,7 @@ module.exports = class PluginManager extends CommandPromise {
 	constructor() {
 		let sup = super();
 		this._modules = [];
+		this.isSilent = false;
 
 		return sup;
 	}
@@ -113,7 +113,7 @@ module.exports = class PluginManager extends CommandPromise {
 		return $$$
 			.requireDir(path, {filter: 'plugin*'})
 			.then(modules => {
-				trace("Plugins loaded from: ".yellow + path);
+				//trace("Plugins loaded from: ".yellow + path);
 				modules.forEach( plugin => {
 					const inst = new plugin();
 					inst.name = plugin.name.remove('Plugin');
@@ -138,8 +138,8 @@ module.exports = class PluginManager extends CommandPromise {
 			func.apply(plugin, args);
 		});
 
-		if(failed.length) {
-			trace(`Failed calling ${method} on: `.red + failed.join(', '))
+		if(failed.length && !this.isSilent) {
+			trace(`Failed calling "${method}" on:\n`.red + failed.toPrettyList())
 		}
 	}
 }
