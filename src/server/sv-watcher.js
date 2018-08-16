@@ -12,6 +12,7 @@ const defaultConfig = {
 };
 
 function SELF(config) {
+	if(!config) config = {};
 	if(!config.dir) config.dir = '.';
 
 	_.extend(config, defaultConfig);

@@ -1,0 +1,146 @@
+/**
+ * Created by Chamberlain on 8/15/2018.
+ */
+const fs = require('fs-extra');
+
+var counter = 0;
+class CommandPromise {
+	constructor(extras) {
+		const priv = this._private = {
+			isNextTick: false,
+			queue: [],
+			self: {},
+			onDone: null,
+			extras: extras || {}
+		};
+
+		//const reserved = ['valueOf','inspect'];
+
+		return new Proxy(this, {
+			get(target, prop, bla) {
+				if((typeof prop) === 'symbol') { //} || reserved.has(prop)) {
+					return priv.self;
+				}
+
+				const exists = target[prop];
+
+				if(exists && (prop.startsWith('_') || !_.isFunction(exists))) return exists;
+
+				const queue = priv.queue;
+				const extras = priv.extras;
+
+				const _prop = '_' + prop;
+				let _realMethod = extras && prop in extras ? extras[prop] : target[_prop];
+
+				return function _proxyResolveMethod(... args) {
+					if(!_realMethod) {
+						const err = `Cannot call "${prop}" because it isn't defined on: `;
+						traceError(err.red + target.constructor.name);
+					} else {
+						queue.push({cb:_realMethod, target:this, args:args});
+					}
+
+					this._prepare();
+
+					return this;
+				};
+			}
+		});
+	}
+
+	_done(cb) {
+		this._private.onDone = cb;
+	}
+
+	_prepare() {
+		const _this = this;
+		const priv = this._private;
+		if(priv.isNextTick) return;
+
+		priv.isNextTick = true;
+
+		process.nextTick(function _proxyNextTick() {
+			priv.isNextTick = false;
+
+			_this._process();
+		});
+	}
+
+	_process() {
+		const priv = this._private;
+		const queue = priv.queue;
+
+		//Clear the queue until next time:
+		priv.queue = [];
+
+		function next() {
+			if(!queue.length) {
+				const done = priv.onDone;
+				priv.onDone = null;
+				return done && done();
+			}
+
+			const current = queue.shift();
+			const result = current.cb.apply(current.target, current.args);
+
+			Promise.resolve(result).then(next);
+		}
+
+		next();
+	}
+}
+
+module.exports = class PluginManager extends CommandPromise {
+
+	static create() {
+		return new PluginManager();
+	}
+
+	constructor() {
+		let sup = super();
+		this._modules = [];
+
+		return sup;
+	}
+
+	_loadFromPath(path) {
+		const _this = this;
+
+		if(!fs.existsSync(path)) {
+			return new Error('Cannot add non-existant plugins directory: ' + path);
+		}
+
+		return $$$
+			.requireDir(path, {filter: 'plugin*'})
+			.then(modules => {
+				trace("Plugins loaded from: ".yellow + path);
+				modules.forEach( plugin => {
+					const inst = new plugin();
+					inst.name = plugin.name.remove('Plugin');
+
+					_this._modules.push(inst);
+					_this[inst.name] = inst;
+
+				});
+			})
+	}
+
+	_callEach(method, ... args) {
+		//trace("Calling method: ".yellow + method);
+		const failed = [];
+
+		_.forOwn(this._modules, (plugin, key) => {
+			const func = plugin[method];
+			if(!func || key.startsWith('$') || key.startsWith('_')) {
+				return failed.push(plugin.name);
+			}
+
+			func.apply(plugin, args);
+		});
+
+		if(failed.length) {
+			trace(`Failed calling ${method} on: `.red + failed.join(', '))
+		}
+	}
+}
+

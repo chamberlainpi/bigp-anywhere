@@ -11,6 +11,7 @@
     "bpa": "./cli.js"
   },
   "dependencies": {
+    "anymatch": "^2.0.0",
     "body-parser": "^1.18.2",
     "chokidar": "^2.0.3",
     "colors": "^1.2.1",

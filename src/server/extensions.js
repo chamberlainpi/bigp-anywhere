@@ -3,8 +3,8 @@
  */
 
 (function() {
-	var isNode = typeof window !== 'object';
-	var GLOBALS = isNode ? global : window;
+	const isNode = typeof window !== 'object';
+	const GLOBALS = isNode ? global : window;
 
 	function init() {
 		GLOBALS.trace = console.log.bind(console);
@@ -114,6 +114,9 @@
 				if(id===-1) return false;
 				this.splice(id, 1);
 				return true;
+			},
+			pushArray(arr) {
+				this.push.apply(this, arr);
 			},
 			pushIfExists() {
 				for(var a=0; a<arguments.length; a++) {
@@ -252,6 +255,8 @@
 				return testFlags;
 			}
 		});
+
+
 	}
 
 	if(!isNode) {
@@ -263,7 +268,7 @@
 			_.extend($$$, EventEmitter.prototype);
 			$$$._events = {};
 
-			inits.forEach(cb => cb())
+			inits.forEach(cb => cb && cb())
 		});
 	}
 

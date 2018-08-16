@@ -29,14 +29,37 @@ const VueSetup = {
 						el.addEventListener(event, cb);
 					})
 				}
+			},
+			'view': {
+				inserted(el, binding, vnode) {
+					trace(el);
+					$$$.on('@route-changed', (to, from) => {
+						trace(to.path);
+					});
+
+					trace(vnode);
+				}
 			}
 		}, config.directives);
+
+		Vue.mixin({
+			mounted: function() {
+				const name = this.$options._componentTag;
+				if(!name || !this.$el || !this.$el.classList) return;
+				this.$el.classList.add(name.toLowerCase());
+			}
+		});
 
 		return new Vue({
 			el: '#app',
 			router: new VueRouter({routes: config.routes}),
 			template: '<App/>',
 			components: {App: config.app},
+			watch: {
+				'$route'(to, from) {
+					$$$.emit('@route-changed', to, from);
+				}
+			}
 		});
 	},
 

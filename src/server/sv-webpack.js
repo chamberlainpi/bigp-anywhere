@@ -9,6 +9,7 @@ function SELF(config) {
 	const compiler = webpack(config);
 
 	SELF.isRunning = false;
+	SELF.isWarned = false;
 	SELF.compiler = compiler;
 	SELF.fileChanged = output.path.mustEndWith('/').fixSlash() + output.filename;
 
@@ -25,7 +26,11 @@ function SELF(config) {
 _.extend(SELF, {
 	run(cbWarnings) {
 		return new Promise((_then, _catch) => {
-			if (SELF.isRunning) return traceError("Already running Webpack...");
+			if (SELF.isRunning) {
+				if(!SELF.isWarned) traceError("Already running Webpack...");
+				SELF.isWarned = true;
+				return;
+			}
 
 			SELF.isRunning = true;
 
@@ -33,6 +38,7 @@ _.extend(SELF, {
 				if (err) return _catch(err);
 
 				SELF.isRunning = false;
+				SELF.isWarned = false;
 
 				const ret = stats.toJson();
 
