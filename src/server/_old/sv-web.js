@@ -54,7 +54,7 @@ SELF.onError = (err, req, res, next) => {
 	res.status(404).send();
 };
 
-SELF.serveFromMemory = function(req, res, next) {
+SELF.memoryMiddleware = function(req, res, next) {
 	const localURI = $$$.paths.public + req.url.before('?');
 	if(!req.url.has('.') || !$$$.memFS.existsSync(localURI)) {
 		return next();
@@ -99,7 +99,7 @@ SELF._processRoute = function(routes) {
 				if(_.isString(obj)) {
 					if(obj.toUpperCase()==='*MEMORY*') {
 						DEBUG("ROUTE FROM MEMORY: " + routeKey);
-						return router.get(routeKey, SELF.serveFromMemory);
+						return router.get(routeKey, SELF.memoryMiddleware);
 					} else if(routeKey.has('.')) {
 						DEBUG("ROUTE DIRECT FILE: " + routeKey);
 						return router.get(routeKey, (req, res, next) => {

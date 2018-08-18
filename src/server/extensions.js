@@ -38,11 +38,13 @@
 			combineWith(delim, arr) {
 				return this.split(delim).concat(arr);
 			},
-			before(char) {
-				return this.split(char, 1)[0];
+			before(char, emptyIfNotFound=false) {
+				const id = this.indexOf(char);
+				return id>-1 ? this.substr(0, id) : (emptyIfNotFound ? '' : this+'');
 			},
-			after(char) {
-				return this.split(char).last();
+			after(char, emptyIfNotFound=false) {
+				const id = this.indexOf(char);
+				return id>-1 ? this.substr(id + 1) : (emptyIfNotFound ? '' : this+'');
 			},
 			ext() {
 				return this.split('.').pop().toLowerCase()
@@ -64,7 +66,7 @@
 				return !this.endsWith(str) ? this + str : this;
 			},
 			toPath() {
-				var split = this.split('/');
+				const split = this.split('/');
 				return { filename: split.pop(), dir: split.join('/') };
 			},
 			replaceBetween(tagStart, tagEnd, cbReplace, sep='\n') {
@@ -205,6 +207,14 @@
 				hasGetSets && _.getset(obj, getsets);
 
 				return obj;
+			},
+
+			repeatUntil(t, cb) {
+				const id = setInterval(() => cb(_stop), t);
+
+				function _stop() {
+					clearInterval(id);
+				}
 			},
 
 			delayPromise(t, v) {

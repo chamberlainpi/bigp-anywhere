@@ -5,7 +5,10 @@ const bpaPaths = $$$.paths._bpa;
 
 module.exports = {
 	isSlowRefresh: false,
-	autoOpen: true,
+	autoOpen: {
+		enabled: true,
+		count: 3,
+	},
     web: {
         port: 9999,
         routes: {
@@ -13,11 +16,7 @@ module.exports = {
 
 			'/js/extensions.js': bpaPaths.server + '/extensions.js',
 
-			'^': [
-				'*MEMORY*',
-				$$$.paths.public,
-				bpaPaths.public,
-			],
+			'/*': ['*MEMORY*', $$$.paths.public, bpaPaths.public],
 
 			'/test': {
 				'/': "test"

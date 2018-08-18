@@ -145,7 +145,8 @@ module.exports = class PluginManager extends CommandProxy {
 			const func = plugin[method];
 
 			if(!func) {
-				return failed.push(plugin.name);
+				failed.push(plugin.name);
+				return nextCall();
 			}
 
 			const result = func.apply(plugin, args);

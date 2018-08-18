@@ -43,5 +43,5 @@ function onReady() {
 	$$$.plugins
 		.callEach('configure', $$$.config)
 		.callEach('addEvents')
-		//.callEach('start');
+		.callEach('start');
 }
