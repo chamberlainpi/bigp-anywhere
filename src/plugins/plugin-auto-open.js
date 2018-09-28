@@ -8,33 +8,29 @@ const cfgAutoOpen = $$$.config.autoOpen || {};
 
 module.exports = class PluginAutoOpen {
 	init() {
-
-	}
-
-	configure() {
-		if(!cfgAutoOpen.enabled) return;
-		if(!cfgAutoOpen.delay) cfgAutoOpen.delay = 3000;
 		const _this = this;
 
-		_this._lastChecked = 0;
-
-		$$$.plugins.Web.addRoutes({
+		this.routes = {
 			'/auto-open-check'(req, res, next) {
 				_this._lastChecked = new Date().getTime();
 				res.send('ok');
 			}
-		})
+		}
 	}
 
-	addEvents() {
-
-	}
+	configure() {}
+	addEvents() {}
 
 	start() {
-		var counter = cfgAutoOpen.count;
+		if(!cfgAutoOpen.enabled) return trace("AUTO-OPEN disabled".bgRed);
+		if(!cfgAutoOpen.delay) cfgAutoOpen.delay = 3000;
+
+		this._lastChecked = 0;
+
+		let counter = cfgAutoOpen.count;
 		_.repeatUntil(1000, stop => {
-			var now = new Date().getTime();
-			var diff = now - this._lastChecked;
+			const now = new Date().getTime();
+			const diff = now - this._lastChecked;
 
 			if(diff<cfgAutoOpen.delay) {
 				trace("-OK-".bgGreen + " Browser Already opened! :)");
@@ -47,7 +43,11 @@ module.exports = class PluginAutoOpen {
 
 			stop();
 
-			opn('http://localhost:' + $$$.config.web.port);
+			this.openURL();
 		})
+	}
+
+	openURL() {
+		opn('http://localhost:' + $$$.config.web.port);
 	}
 }

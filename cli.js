@@ -20,14 +20,12 @@ $$$.plugins
 	.loadFromPath($$$.paths._bpa.plugins)
 	.loadFromPath($$$.paths.plugins)
 	.callEach('init')
+	.forEach('routes', routes => $$$.plugins.Web.addRoutes(routes))
 	.done(onReady);
 
-$$$.plugins.isSilent = true;
+$$$.plugins.isSilent = false;
 
-$$$.config = $$$.mergeIfExists(
-	$$$.paths._bpa.src + '/config',
-	$$$.paths.src + '/config'
-);
+loadConfig();
 
 function onReady() {
 	//For testing purposes, some experiments can be run here:
@@ -44,4 +42,12 @@ function onReady() {
 		.callEach('configure', $$$.config)
 		.callEach('addEvents')
 		.callEach('start');
+}
+
+function loadConfig() {
+	$$$.config = $$$.mergeIfExists(
+		$$$.paths._bpa.src + '/config',
+		$$$.paths.src + '/config'
+	);
+
 }

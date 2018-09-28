@@ -125,42 +125,47 @@ module.exports = class PluginManager extends CommandProxy {
 			})
 	}
 
-	_callEach(method, ... args) {
+	_callEach(methodName, ... args) {
+		return this._forEach(methodName, (func, plugin) => {
+			return func.apply(plugin, args);
+		});
+	}
+
+	_forEach(methodName, cb) {
 		const log = o => {
 			if(this.isSilent) return;
 			trace(o);
 		};
 
-		log("Calling method: ".yellow + method);
 		const failed = [];
 		const mods = this._modules;
 		let m = 0;
 
-		log("Start calling: ".green + method);
+		log("Start calling: ".green + methodName);
 
 		function nextCall() {
 			if(m>=mods.length) return onDone();
 
 			const plugin = mods[m++];
-			const func = plugin[method];
+			const func = plugin[methodName];
 
 			if(!func) {
 				failed.push(plugin.name);
 				return nextCall();
 			}
 
-			const result = func.apply(plugin, args);
+			const result = cb(func, plugin);
 
-			log(`${result} - ${method} [${plugin.name}]`.cyan);
+			log(`${plugin.name}.${methodName} = ${result}`.cyan);
 
 			return Promise.resolve(result).then(nextCall);
 		}
 
 		function onDone() {
 			if(failed.length) {
-				log(`Failed calling "${method}" on:\n`.red + failed.toPrettyList())
+				log(`Failed calling "${methodName}" on:\n`.red + failed.toPrettyList())
 			} else {
-				log("Done calling: ".red + method);
+				log("Done calling: ".red + methodName);
 			}
 		}
 

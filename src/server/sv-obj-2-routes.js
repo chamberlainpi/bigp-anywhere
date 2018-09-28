@@ -4,14 +4,14 @@
 
 const fs = require('fs-extra');
 
-const DEBUG = o => false && trace(o);
+const DEBUG = o => true && trace(o);
 
 module.exports = function obj2routes(routesObj, options) {
 	const app = options.app;
 	const express = options.express;
 
 	function _recursive(obj) {
-		const router = express.Router();
+		const router = express.Router({strict:false});
 
 		_.forOwn(obj, (value, key) => {
 			if(!_.isArray(value)) value = [value];
@@ -23,35 +23,41 @@ module.exports = function obj2routes(routesObj, options) {
 	}
 
 	function _eachMiddleware(router, key, obj) {
-		function _makeGetter(log, cb, what) {
-			DEBUG(key + ": " + log + " " + (what || ''));
-			return router.get(key, cb);
+		const routeArr = key.split('::', 2);
+		const method = routeArr.length===1 ? 'get' : routeArr[0].toLowerCase();
+		const subPath = routeArr.length===1 ? routeArr[0] : routeArr[1];
+		const sendfile = (req, res, next) => res.sendFile(obj);
+		const senddata = (req, res, next) => res.send(obj);
+		const DEBUG_HEADER = `app.${method}("${subPath}"): `;
+
+		//trace(routeArr.length + ' : ' + method + " - " + subPath);
+
+
+		function _routeDebug(log, cb, what) {
+			DEBUG(DEBUG_HEADER + log.bgCyan.black + (what || ''));
+			return router[method](subPath, cb);
 		}
 
 		if(_.isString(obj)) {
 			if(obj.toUpperCase()==='*MEMORY*') {
 				if(!options.memoryMiddleware) throw 'Missing options.memoryMiddleware!';
 
-				return _makeGetter("ROUTE FROM MEMORY", options.memoryMiddleware);
+				return _routeDebug("MEMORY", options.memoryMiddleware);
 			} else if(key.has('.')) {
-				return _makeGetter("ROUTE DIRECT FILE", (req, res, next) => res.sendFile(obj));
+				return _routeDebug("DIRECT FILE", sendfile);
 			} else if(obj.split('/').length>2) {
 				if(!fs.existsSync(obj)) {
 					return DEBUG("Cannot serve missing directory: ".red + obj);
 				}
 
-				return _makeGetter("ROUTE STATIC DIR", express.static(obj), obj);
+				return _routeDebug("STATIC DIR", express.static(obj), obj);
 			} else {
-				return _makeGetter("ROUTE STRING", (req, res, next) => res.send(obj), obj);
+				return _routeDebug("STRING DATA", senddata, obj);
 			}
 		}
 
 		if(_.isFunction(obj)) {
-			const routeArr = key.split('::', 1);
-			const method = routeArr.length===1 ? 'get' : routeArr[0].toLowerCase();
-			const subPath = routeArr.length===1 ? routeArr[0] : routeArr[1];
-
-			DEBUG("ROUTE MIDDLEWARE: " + method.toUpperCase() + "::" + subPath);
+			DEBUG(DEBUG_HEADER + "MIDDLEWARE".bgCyan.black);
 
 			if(obj.length===0) {
 				//Must be some sort of special chained route:
@@ -63,10 +69,10 @@ module.exports = function obj2routes(routesObj, options) {
 				router[method](subPath, obj);
 			}
 		} else {
-			DEBUG("ROUTE CHILD: " + key);
+			DEBUG(DEBUG_HEADER + "CHILD...".bgCyan.black);
 			const childRouter = _recursive(obj);
 
-			router.use(key, childRouter);
+			router[method](subPath, childRouter);
 		}
 	}
 

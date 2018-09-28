@@ -21,11 +21,10 @@ module.exports = class PluginWeb {
 	init() {
 		this._dynamicRouter = null;
 		this._dynamicObject = {};
+		this._isRoutesDirty = false;
 	}
 
 	configure(config) {
-		//app.use('/', express.static($$$.paths.public));
-		//app.use('/', express.static($$$.paths._bpa.public));
 		app.use('/', this.dynamicMiddleware.bind(this));
 		app.use(this.errorMiddleware);
 
@@ -51,6 +50,8 @@ module.exports = class PluginWeb {
 		}
 
 		this._dynamicRouter(req, res, next);
+
+		trace(req.fullUrl() + " : " + res.headersSent);
 	}
 
 	errorMiddleware(err, req, res, next) {
@@ -59,14 +60,33 @@ module.exports = class PluginWeb {
 	}
 
 	addRoutes(obj) {
-		if(!obj) return;
+		if(!obj) return null;
 
 		_.extend(this._dynamicObject, obj);
 
-		this._dynamicRouter = obj2routes(this._dynamicObject, {
-			app:app,
-			express:express,
-			memoryMiddleware: this.memoryMiddleware.bind(this)
+		this.dirtyRoutes();
+
+		return obj;
+	}
+
+	dirtyRoutes() {
+		if(this._isRoutesDirty) return;
+
+		this._isRoutesDirty = true;
+
+		process.nextTick(() => {
+			this._isRoutesDirty = false;
+
+			if(!this._dynamicObject) {
+				this._dynamicRouter = null;
+				return;
+			}
+
+			this._dynamicRouter = obj2routes(this._dynamicObject, {
+				app:app,
+				express:express,
+				memoryMiddleware: this.memoryMiddleware.bind(this)
+			});
 		});
 	}
 
@@ -86,10 +106,10 @@ module.exports = class PluginWeb {
 	};
 };
 
-/*
-	'/'
-
-	'/api'
-
-	'/js'
- */
+express.request.fullUrl = function() {
+	return url.format({
+		protocol: this.protocol,
+		host: this.get('host'),
+		pathname: this.originalUrl
+	});
+};
