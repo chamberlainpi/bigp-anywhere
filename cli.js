@@ -12,9 +12,17 @@ $$$.env = yargs
 	.alias('p','prod')
 	.alias('v','verbose')
 	.alias('x', 'exp')
+	.alias('c', 'command')
 	.argv;
 
 $$$.paths = require('./src/server/sv-paths');
+
+if($$$.env.c) {
+	const cmdModule = $$$.paths._bpa.commands + $$$.env.c.mustStartWith('/');
+	require(cmdModule);
+	return;
+}
+
 $$$.plugins = require('./src/server/sv-plugin-manager').create();
 $$$.plugins
 	.loadFromPath($$$.paths._bpa.plugins)

@@ -7,7 +7,7 @@ global._ = require('lodash');
 require('colors');
 require('./extensions');
 
-const fs = require('fs-extra');
+const fs = $$$.fs = require('fs-extra');
 const anymatch = require('anymatch');
 const inquirer = require('inquirer');
 const prompt = inquirer.createPromptModule();

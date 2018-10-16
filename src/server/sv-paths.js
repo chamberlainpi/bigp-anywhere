@@ -24,6 +24,7 @@ function makePaths(root) {
 		client: src + '/client',
 		server: src + '/server',
 		plugins: src + '/plugins',
+		commands: src + '/commands',
 		tests: src + '/tests',
 		public: root + '/public',
 		dist: root + '/public/dist',
