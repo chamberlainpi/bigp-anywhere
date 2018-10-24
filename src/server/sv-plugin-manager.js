@@ -103,7 +103,7 @@ module.exports = class PluginManager extends CommandProxy {
 		return sup;
 	}
 
-	_loadFromPath(path) {
+	_loadFromPath(path, params) {
 		const _this = this;
 
 		if(!fs.existsSync(path)) {
@@ -111,7 +111,7 @@ module.exports = class PluginManager extends CommandProxy {
 		}
 
 		return $$$
-			.requireDir(path, {filter: 'plugin*'})
+			.requireDir(path, _.extend({filter: 'plugin*'}, params))
 			.then(modules => {
 				//trace("Plugins loaded from: ".yellow + path);
 				modules.forEach( plugin => {

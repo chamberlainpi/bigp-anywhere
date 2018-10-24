@@ -28,13 +28,13 @@ module.exports = function obj2routes(routesObj, options) {
 		const subPath = routeArr.length===1 ? routeArr[0] : routeArr[1];
 		const sendfile = (req, res, next) => res.sendFile(obj);
 		const senddata = (req, res, next) => res.send(obj);
-		const DEBUG_HEADER = `app.${method}("${subPath}"): `;
+		const DEBUG_HEADER = `app.${method}("${subPath}"): `.padEnd(30);
 
 		//trace(routeArr.length + ' : ' + method + " - " + subPath);
 
 
 		function _routeDebug(log, cb, what) {
-			DEBUG(DEBUG_HEADER + log.bgCyan.black + (what || ''));
+			DEBUG(DEBUG_HEADER + log.bgCyan.black + ' ' + (what || ''));
 			return router[method](subPath, cb);
 		}
 

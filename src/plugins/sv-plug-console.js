@@ -5,7 +5,7 @@
 module.exports = class PluginConsole {
 	init() {
 		this.routes = {
-			'use::/console': [$$$.paths._bpa.client + '/console', 404]
+			'use::/console': [$$$.paths._bpa.src + '/console', 404]
 		};
 	}
 

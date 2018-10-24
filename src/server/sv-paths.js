@@ -1,7 +1,3 @@
-/**
- * Created by Chamberlain on 3/30/2018.
- */
-
 const fs = require('fs-extra');
 
 const _internal = __dirname.fixSlash();

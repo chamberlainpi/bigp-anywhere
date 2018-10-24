@@ -23,10 +23,11 @@ if($$$.env.c) {
 	return;
 }
 
+const pluginFilters = {filter: 'sv-plug*'};
 $$$.plugins = require('./src/server/sv-plugin-manager').create();
 $$$.plugins
-	.loadFromPath($$$.paths._bpa.plugins)
-	.loadFromPath($$$.paths.plugins)
+	.loadFromPath($$$.paths._bpa.plugins, pluginFilters)
+	.loadFromPath($$$.paths.plugins, pluginFilters)
 	.callEach('init')
 	.forEach('routes', routes => $$$.plugins.Web.addRoutes(routes))
 	.done(onReady);
@@ -34,6 +35,14 @@ $$$.plugins
 $$$.plugins.isSilent = false;
 
 loadConfig();
+
+
+function loadConfig() {
+	$$$.config = $$$.mergeIfExists(
+		$$$.paths._bpa.src + '/config',
+		$$$.paths.src + '/config'
+	);
+}
 
 function onReady() {
 	//For testing purposes, some experiments can be run here:
@@ -50,12 +59,4 @@ function onReady() {
 		.callEach('configure', $$$.config)
 		.callEach('addEvents')
 		.callEach('start');
-}
-
-function loadConfig() {
-	$$$.config = $$$.mergeIfExists(
-		$$$.paths._bpa.src + '/config',
-		$$$.paths.src + '/config'
-	);
-
 }
