@@ -109,3 +109,12 @@ _.extend($$$, {
 		return result;
 	}
 });
+
+const traceSpecial = header => (o, returnOnly) => {
+	const msg = header + ' ' + o;
+	!returnOnly && trace(msg);
+	return msg;
+};
+
+trace.OK = traceSpecial('--OK--'.bgGreen);
+trace.FAIL =  traceSpecial('--X--'.bgRed);

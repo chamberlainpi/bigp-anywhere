@@ -13,13 +13,15 @@ $$$.env = yargs
 	.alias('v','verbose')
 	.alias('x', 'exp')
 	.alias('c', 'command')
+	.alias('?', 'what')
 	.argv;
 
 $$$.paths = require('./src/server/sv-paths');
+$$$.cmd = require('./src/server/sv-command-exec');
 
-if($$$.env.c) {
-	const cmdModule = $$$.paths._bpa.commands + $$$.env.c.mustStartWith('/');
-	require(cmdModule);
+/////////////////////
+
+if($$$.cmd.isCommandExec($$$.env)) {
 	return;
 }
 

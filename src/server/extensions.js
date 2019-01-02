@@ -65,6 +65,18 @@
 			mustEndWith(str) {
 				return !this.endsWith(str) ? this + str : this;
 			},
+			mustWrapWith(a, b) {
+				return this.mustStartWith(a).mustEndWith(b);
+			},
+			times(num) {
+				var str = '';
+				var what = this.toString();
+				while((--num)>=0) {
+					str += what;
+				}
+
+				return str;
+			},
 			toPath() {
 				const split = this.split('/');
 				return { filename: split.pop(), dir: split.join('/') };
