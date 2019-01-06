@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+const PLUGIN_FILTERS = {filter: 'sv-plug*'};
 const yargs = require('yargs');
 const MFS = require('memory-fs');
 
@@ -28,12 +29,11 @@ $$$.config = $$$.mergeIfExists(
 	$$$.paths.src + '/config'
 );
 
-const pluginFilters = {filter: 'sv-plug*'};
 $$$.plugins = require('./src/server/sv-plugin-manager').create();
 $$$.plugins.isSilent = false;
 $$$.plugins
-	.loadFromPath($$$.paths._bpa.plugins, pluginFilters)
-	.loadFromPath($$$.paths.plugins, pluginFilters)
+	.loadFromPath($$$.paths._bpa.plugins, PLUGIN_FILTERS)
+	.loadFromPath($$$.paths.plugins, PLUGIN_FILTERS)
 	.callEach('init')
 	.forEach('routes', routes => $$$.plugins.Web.addRoutes(routes))
 	.done(() => {
