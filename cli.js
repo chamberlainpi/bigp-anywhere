@@ -27,14 +27,13 @@ if($$$.cmd.isCommandExec($$$.env)) {
 
 const pluginFilters = {filter: 'sv-plug*'};
 $$$.plugins = require('./src/server/sv-plugin-manager').create();
+$$$.plugins.isSilent = false;
 $$$.plugins
 	.loadFromPath($$$.paths._bpa.plugins, pluginFilters)
 	.loadFromPath($$$.paths.plugins, pluginFilters)
 	.callEach('init')
 	.forEach('routes', routes => $$$.plugins.Web.addRoutes(routes))
 	.done(onReady);
-
-$$$.plugins.isSilent = false;
 
 loadConfig();
 

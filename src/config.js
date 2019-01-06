@@ -6,7 +6,7 @@ const bpaPaths = $$$.paths._bpa;
 module.exports = {
 	isSlowRefresh: false,
 	autoOpen: {
-		enabled: false,
+		enabled: true,
 		count: 3,
 	},
     web: {
