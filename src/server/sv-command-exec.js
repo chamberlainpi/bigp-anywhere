@@ -3,7 +3,7 @@
  */
 
 module.exports = {
-	isCommandExec(env) {
+	isUsingCommand(env) {
 		if(!env.c) return false;
 
 		if(!_.isString(env.c)) {

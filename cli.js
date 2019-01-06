@@ -19,11 +19,14 @@ $$$.env = yargs
 $$$.paths = require('./src/server/sv-paths');
 $$$.cmd = require('./src/server/sv-command-exec');
 
-/////////////////////
+///////////////////////////////////////////////////////////////
 
-if($$$.cmd.isCommandExec($$$.env)) {
-	return;
-}
+if($$$.cmd.isUsingCommand($$$.env)) return;
+
+$$$.config = $$$.mergeIfExists(
+	$$$.paths._bpa.src + '/config',
+	$$$.paths.src + '/config'
+);
 
 const pluginFilters = {filter: 'sv-plug*'};
 $$$.plugins = require('./src/server/sv-plugin-manager').create();
@@ -33,20 +36,9 @@ $$$.plugins
 	.loadFromPath($$$.paths.plugins, pluginFilters)
 	.callEach('init')
 	.forEach('routes', routes => $$$.plugins.Web.addRoutes(routes))
-	.done(onReady);
+	.done(() => {
 
-loadConfig();
-
-
-function loadConfig() {
-	$$$.config = $$$.mergeIfExists(
-		$$$.paths._bpa.src + '/config',
-		$$$.paths.src + '/config'
-	);
-}
-
-function onReady() {
-	//For testing purposes, some experiments can be run here:
+	//For testing purposes, some experiments can be executed here:
 	if($$$.env.x) return require($$$.paths.experiments + "/_main.js");
 
 	const isProd = $$$.env.p===true;
@@ -60,4 +52,4 @@ function onReady() {
 		.callEach('configure', $$$.config)
 		.callEach('addEvents')
 		.callEach('start');
-}
+});

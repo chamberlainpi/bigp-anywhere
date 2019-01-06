@@ -5,10 +5,12 @@ const bpaPaths = $$$.paths._bpa;
 
 module.exports = {
 	isSlowRefresh: false,
+
 	autoOpen: {
 		enabled: true,
 		count: 3,
 	},
+	
     web: {
         port: 9999,
         routes: {
