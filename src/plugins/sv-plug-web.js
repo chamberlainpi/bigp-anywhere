@@ -25,15 +25,13 @@ module.exports = class PluginWeb {
 	}
 
 	configure(config) {
-		app.use('/', this.dynamicMiddleware.bind(this));
-		app.use(this.errorMiddleware);
+		app.use('/', this.middlewareDynamic.bind(this));
+		app.use(this.middlewareErrors);
 
 		this.addRoutes(config.web.routes);
 	}
 
-	addEvents() {
-
-	}
+	addEvents() {}
 
 	start() {
 		server.listen(config.port, () => {
@@ -42,22 +40,6 @@ module.exports = class PluginWeb {
 	}
 
 	//////////////////////////////////////////////////////////////
-
-	dynamicMiddleware(req, res, next) {
-		if(!this._dynamicRouter) {
-			traceOnce(req.url, 'No dynamic router available!');
-			return next();
-		}
-
-		this._dynamicRouter(req, res, next);
-
-		trace(req.fullUrl() + " : " + res.headersSent);
-	}
-
-	errorMiddleware(err, req, res, next) {
-		trace(err);
-		res.status(404).send();
-	}
 
 	addRoutes(obj) {
 		if(!obj) return null;
@@ -85,7 +67,7 @@ module.exports = class PluginWeb {
 			this._dynamicRouter = obj2routes(this._dynamicObject, {
 				app:app,
 				express:express,
-				memoryMiddleware: this.memoryMiddleware.bind(this)
+				memoryMiddleware: this.middlewareFromMemory.bind(this)
 			});
 		});
 	}
@@ -95,7 +77,23 @@ module.exports = class PluginWeb {
 		this._dynamicRouter = null;
 	}
 
-	memoryMiddleware(req, res, next) {
+	middlewareDynamic(req, res, next) {
+		if (!this._dynamicRouter) {
+			traceOnce(req.url, 'No dynamic router available!');
+			return next();
+		}
+
+		this._dynamicRouter(req, res, next);
+
+		trace(req.fullUrl() + " : " + res.headersSent);
+	}
+
+	middlewareErrors(err, req, res, next) {
+		trace(err);
+		res.status(404).send();
+	}
+	
+	middlewareFromMemory(req, res, next) {
 		const localURI = $$$.paths.public + req.url.before('?');
 		if(!req.url.has('.') || !$$$.memFS.existsSync(localURI)) {
 			return next();
@@ -106,6 +104,8 @@ module.exports = class PluginWeb {
 	};
 };
 
+
+//Extend all 'express' Request (req) objects with a .fullUrl() method.
 express.request.fullUrl = function() {
 	return url.format({
 		protocol: this.protocol,

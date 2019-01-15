@@ -29,10 +29,7 @@ module.exports = function obj2routes(routesObj, options) {
 		const sendfile = (req, res, next) => res.sendFile(obj);
 		const senddata = (req, res, next) => res.send(obj);
 		const DEBUG_HEADER = `app.${method}("${subPath}"): `.padEnd(30);
-
-		//trace(routeArr.length + ' : ' + method + " - " + subPath);
-
-
+		
 		function _routeDebug(log, cb, what) {
 			DEBUG(DEBUG_HEADER + log.bgCyan.black + ' ' + (what || ''));
 			return router[method](subPath, cb);
@@ -47,7 +44,7 @@ module.exports = function obj2routes(routesObj, options) {
 				return _routeDebug("DIRECT FILE", sendfile);
 			} else if(obj.split('/').length>2) {
 				if(!fs.existsSync(obj)) {
-					return DEBUG("Cannot serve missing directory: ".red + obj);
+					DEBUG("Missing directory: ".red + obj); //Cannot serve 
 				}
 
 				return _routeDebug("STATIC DIR", express.static(obj), obj);

@@ -29,10 +29,10 @@ class CommandProxy {
 
 				return function _proxyResolveMethod(... args) {
 					if(!method) {
-						const err = `Cannot call "${prop}" because it isn't defined on: `;
-						traceError(err.red + target.constructor.name);
+						const errMsg = `Cannot call "${prop}" because it isn't defined on: `;
+						traceError(errMsg.red + target.constructor.name);
 					} else {
-						queue.push({cb:method, prop: prop, target:this, args:args});
+						queue.push({method:method, prop:prop, target:this, args:args});
 					}
 
 					this._prepare();
@@ -76,7 +76,7 @@ class CommandProxy {
 			}
 
 			const current = queue.shift();
-			const result = current.cb.apply(current.target, current.args);
+			const result = current.method.apply(current.target, current.args);
 
 			if(result instanceof Error) {
 				traceError(result.toString().red);
