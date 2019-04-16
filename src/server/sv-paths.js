@@ -27,7 +27,6 @@ function makePaths(root) {
 		data: root + '/.private/data',
 		private: root + '/.private',
 		templates: root + '/templates',
-		experiments: root + '/experiments',
 		node_modules: root + '/node_modules',
 	}
 }

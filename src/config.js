@@ -7,7 +7,7 @@ module.exports = {
 	isSlowRefresh: false,
 
 	autoOpen: {
-		enabled: true,
+		enabled: false,
 		count: 3,
 	},
 	

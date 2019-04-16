@@ -12,23 +12,26 @@ Generates filenames list in a 'filenames.txt' and 'config.ini' to upload for pre
 `,
 
 	exec() {
-		const txtFile = $$$.paths.root.mustEndWith('/') + 'filenames.txt';
-		const configFile = $$$.paths.root.mustEndWith('/') + 'config.ini';
+		const root = $$$.paths.root.mustEndWith( '/' );
+		const txtFile = root + 'filenames.txt';
+		const configFile = root + 'config.ini';
 
-		return $$$.fs.readdir($$$.paths.root)
+		return $$$.fs.readdir( root )
 			.then(list => {
 				list = list.map(a => a.split('.')[0]);
-				const listData = list.join('\n');
+				const txtData = list.join('\n');
 				const configData = '[English]\n' +
 					list.map(a => a + ' = "*.html"')
 						.join('\n');
 
-				trace(listData);
+				trace(txtData);
 
-				return Promise.all([
-					$$$.fs.writeFile(txtFile, listData),
-					$$$.fs.writeFile(configFile, configData),
-				]);
+				return $$$.wait(2000);
+
+				// return Promise.all([
+				// 	$$$.fs.writeFile(txtFile, txtData),
+				// 	$$$.fs.writeFile(configFile, configData),
+				// ]);
 			})
 			.then(ok => {
 				trace("Wrote file:\n".green + txtFile + "\n" + configFile);

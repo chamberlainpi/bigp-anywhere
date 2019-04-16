@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "anymatch": "^2.0.0",
+    "bluebird": "^3.5.4",
     "body-parser": "^1.18.2",
     "chokidar": "^2.0.3",
     "clean-css": "^4.2.1",

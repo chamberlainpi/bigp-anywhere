@@ -22,6 +22,7 @@ module.exports = class PluginWeb {
 		this._dynamicRouter = null;
 		this._dynamicObject = {};
 		this._isRoutesDirty = false;
+		this._isStarted = false;
 	}
 
 	configure(config) {
@@ -34,6 +35,10 @@ module.exports = class PluginWeb {
 	addEvents() {}
 
 	start() {
+		if ( this._isStarted ) return trace( "Already started!".red );
+
+		this._isStarted = true;
+
 		server.listen(config.port, () => {
 			trace("  *STARTED*  ".bgGreen + ' http://localhost:' + config.port);
 		})
@@ -42,7 +47,9 @@ module.exports = class PluginWeb {
 	//////////////////////////////////////////////////////////////
 
 	addRoutes(obj) {
-		if(!obj) return null;
+		if ( !obj ) return null;
+		
+		trace( this );
 
 		_.extend(this._dynamicObject, obj);
 

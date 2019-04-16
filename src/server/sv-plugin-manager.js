@@ -3,143 +3,74 @@
  */
 const fs = require('fs-extra');
 
-class CommandProxy {
-	constructor(extras) {
-		const priv = this._private = {
-			isTicking: false,
-			queue: [],
-			self: {},
-			onDone: null,
-			extras: extras || {}
-		};
-
-		return new Proxy(this, {
-			get(target, prop) {
-				if((typeof prop) === 'symbol') {
-					return priv.self;
-				}
-
-				const exists = target[prop];
-				const queue = priv.queue;
-				const extras = priv.extras;
-				const _prop = '_' + prop;
-				const method = extras && prop in extras ? extras[prop] : target[_prop];
-
-				if(exists && (prop.startsWith('_') || !_.isFunction(exists))) return exists;
-
-				return function _proxyResolveMethod(... args) {
-					if(!method) {
-						const errMsg = `Cannot call "${prop}" because it isn't defined on: `;
-						traceError(errMsg.red + target.constructor.name);
-					} else {
-						queue.push({method:method, prop:prop, target:this, args:args});
-					}
-
-					this._prepare();
-
-					return this;
-				};
-			}
-		});
-	}
-
-	_done(cb) {
-		this._private.onDone = cb;
-	}
-
-	_prepare() {
-		const _this = this;
-		const priv = this._private;
-
-		if(priv.isTicking) return;
-		priv.isTicking = true;
-
-		process.nextTick(function _proxyNextTick() {
-			priv.isTicking = false;
-
-			_this._process();
-		});
-	}
-
-	_process() {
-		const priv = this._private;
-		const queue = priv.queue;
-
-		//Clear the queue until next time:
-		priv.queue = [];
-
-		function nextProcess() {
-			if(!queue.length) {
-				const done = priv.onDone;
-				priv.onDone = null;
-				return done && done();
-			}
-
-			const current = queue.shift();
-			const result = current.method.apply(current.target, current.args);
-
-			if(result instanceof Error) {
-				traceError(result.toString().red);
-			}
-
-			return Promise.resolve(result).then(nextProcess);
-		}
-
-		nextProcess();
-	}
-}
-
-module.exports = class PluginManager extends CommandProxy {
-
-	static create() {
-		return new PluginManager();
-	}
-
+module.exports = class PluginManager {
 	constructor() {
-		let sup = super();
 		this._modules = [];
+		this._moduleDirs = [];
 		this.isSilent = false;
-
-		return sup;
 	}
 
-	_loadFromPath(path, params) {
+	init() {
+		return Promise.resolve(this);
+	}
+
+	loadFromPath( paths, params ) {
+		if ( !_.isArray( paths ) ) paths = [paths];
+
 		const _this = this;
+		const toPromise = path => {
+			if ( !fs.existsSync( path ) ) {
+				throw ( 'Cannot add non-existant plugins directory: ' + path );
+			}
 
-		if(!fs.existsSync(path)) {
-			return new Error('Cannot add non-existant plugins directory: ' + path);
-		}
+			if ( _this._moduleDirs.has( path ) ) {
+				//trace( "Already loaded plugin path: " + path );
+				return;
+			}
 
-		return $$$
-			.requireDir(path, _.extend({filter: 'plugin*'}, params))
-			.then(modules => {
-				//trace("Plugins loaded from: ".yellow + path);
-				modules.forEach( plugin => {
-					const inst = new plugin();
-					inst.name = plugin.name.remove('Plugin');
+			_this._moduleDirs.push( path );
 
-					_this._modules.push(inst);
-					_this[inst.name] = inst;
+			return $$$
+				.requireDir( path, _.extend( { filter: 'plugin*' }, params ) )
+				.then( modules => {
+					modules.forEach( pluginCls => {
+						const name = pluginCls.name.remove( 'Plugin' );
 
-				});
-			})
-	}
+						if ( _this[name] ) {
+							trace( "Already loaded plugin named: ".red + name );
+							return;
+						}
 
-	_callEach(methodName, ... args) {
-		return this._forEach(methodName, (func, plugin) => {
-			return func.apply(plugin, args);
-		});
-	}
+						trace( pluginCls.name + " Loaded." );
 
-	_forEach(methodName, cb) {
-		const log = o => {
-			if(this.isSilent) return;
-			trace(o);
+						const inst = new pluginCls();
+						inst.name = name;
+
+						_this._modules.push( inst );
+						_this[name] = inst;
+					} );
+				} )
 		};
 
+		return Promise.each( paths, toPromise )
+			.then( () => _this );
+	}
+
+	callEach(methodName, ... args) {
+		return this.forEach(methodName, (func, plugin) => {
+			return func.apply(plugin, args);
+		} ).then( () => this );
+	}
+
+	forEach(methodName, cb) {
+		let m = 0;
+		const _this = this;
 		const failed = [];
 		const mods = this._modules;
-		let m = 0;
+		const log = o => {
+			if ( this.isSilent ) return;
+			trace( o );
+		};
 
 		log("Start calling: ".green + methodName);
 
@@ -163,10 +94,12 @@ module.exports = class PluginManager extends CommandProxy {
 
 		function onDone() {
 			if(failed.length) {
-				log(`Failed calling "${methodName}" on:\n`.red + failed.toPrettyList())
+				log( `Failed calling "${methodName}" on:\n`.red + failed.toPrettyList() )
 			} else {
-				log("Done calling: ".red + methodName);
+				log( " ... Done calling: ".yellow + methodName );
 			}
+
+			return _this;
 		}
 
 		return nextCall();

@@ -5,14 +5,62 @@ const Events = require('events');
 global.$$$ = new Events();
 global._ = require('lodash');
 require('colors');
-require('./extensions');
+require( './extensions' );
+
+global.Promise = require('bluebird');
 
 const fs = $$$.fs = require('fs-extra');
 const anymatch = require('anymatch');
 const inquirer = require('inquirer');
 const prompt = inquirer.createPromptModule();
 
-_.extend($$$, {
+_.extend( $$$, {
+	filterFiles( path, filter, isRecursive ) {
+		if ( _.isString( filter ) ) {
+			const str = filter;
+			filter = f => f.has( str );
+		}
+
+		if ( _.isRegExp( filter ) ) {
+			const reg = filter;
+			filter = f => reg.test( f );
+		}
+
+		if ( _.isArray( path ) ) {
+			const calls = path.map( p => $$$.filterFiles( p, filter, isRecursive ) );
+
+			return Promise.all( calls ).then( $$$.mergeAll );
+		}
+
+		const makeFullPath = f => path.mustEndWith( '/' ) + f;
+
+		const filterDirs =
+			dirs => dirs
+				.filter( filter )
+				.map( isRecursive ? noFunc : makeFullPath )
+
+		const recursiveDirs =
+			paths => {
+				paths = paths.map( makeFullPath );
+
+				var dirsOnly = paths.filter( p => fs.lstatSync( p ).isDirectory() );
+				var dirsPromises = dirsOnly.map( dir => $$$.filterFiles( dir, filter, true ) );
+
+				return Promise.all( dirsPromises )
+					.then( results => {
+						paths = paths.concat.apply( paths, results );
+
+						return paths.filter( filter );
+					} );
+			};
+
+		if ( isRecursive ) {
+			return fs.readdir( path ).then( recursiveDirs );
+		}
+
+		return fs.readdir( path ).then( filterDirs );
+	},
+	
 	promptFile(params) {
 		if(_.isString(params)) params = {path: params};
 		else params = params || {};
@@ -47,6 +95,12 @@ _.extend($$$, {
 		return new Promise((_then, _catch) => {
 			process.nextTick(() => cb(_then, _catch));
 		});
+	},
+
+	wait( time ) {
+		return new Promise( ( _then, _catch ) => {
+			setTimeout( _then, time );
+		} );
 	},
 
 	requireAuto(path) {
