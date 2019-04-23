@@ -1,23 +1,34 @@
 /**
  * Created by Chamberlain on 8/15/2018.
  */
-const fs = require('fs-extra');
+
+let _this;
+const fs = require( 'fs-extra' );
+const log = o => {
+	if ( _this.isSilent ) return;
+	trace( o );
+};
 
 module.exports = class PluginManager {
 	constructor() {
 		this._modules = [];
 		this._moduleDirs = [];
 		this.isSilent = false;
+
+		_this = this;
 	}
 
-	init() {
-		return Promise.resolve(this);
+	errHandler(err) {
+		if ( err === 'done' ) return trace( "Done.".green );
+		if ( err === 'skip' ) return;
+
+		trace.FAIL( "An error occured!".red );
+		trace( err );
 	}
 
 	loadFromPath( paths, params ) {
 		if ( !_.isArray( paths ) ) paths = [paths];
 
-		const _this = this;
 		const toPromise = path => {
 			if ( !fs.existsSync( path ) ) {
 				throw ( 'Cannot add non-existant plugins directory: ' + path );
@@ -37,11 +48,11 @@ module.exports = class PluginManager {
 						const name = pluginCls.name.remove( 'Plugin' );
 
 						if ( _this[name] ) {
-							trace( "Already loaded plugin named: ".red + name );
+							trace.FAIL( "Already loaded plugin named: ".red + name );
 							return;
 						}
 
-						trace( pluginCls.name + " Loaded." );
+						log( pluginCls.name + " Loaded." );
 
 						const inst = new pluginCls();
 						inst.name = name;
@@ -64,13 +75,8 @@ module.exports = class PluginManager {
 
 	forEach(methodName, cb) {
 		let m = 0;
-		const _this = this;
 		const failed = [];
 		const mods = this._modules;
-		const log = o => {
-			if ( this.isSilent ) return;
-			trace( o );
-		};
 
 		log("Start calling: ".green + methodName);
 

@@ -1,4 +1,5 @@
 module.exports = {
+	tags: 'ads, config, filename, generator',
 	help: `
 Generates filenames list in a 'filenames.txt' and 'config.ini' to upload for previewing HTML5 ads.
 
@@ -26,12 +27,10 @@ Generates filenames list in a 'filenames.txt' and 'config.ini' to upload for pre
 
 				trace(txtData);
 
-				return $$$.wait(2000);
-
-				// return Promise.all([
-				// 	$$$.fs.writeFile(txtFile, txtData),
-				// 	$$$.fs.writeFile(configFile, configData),
-				// ]);
+				return Promise.all([
+					$$$.fs.writeFile(txtFile, txtData),
+					$$$.fs.writeFile(configFile, configData),
+				]);
 			})
 			.then(ok => {
 				trace("Wrote file:\n".green + txtFile + "\n" + configFile);

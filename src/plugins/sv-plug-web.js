@@ -48,8 +48,6 @@ module.exports = class PluginWeb {
 
 	addRoutes(obj) {
 		if ( !obj ) return null;
-		
-		trace( this );
 
 		_.extend(this._dynamicObject, obj);
 

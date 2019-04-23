@@ -39,61 +39,67 @@ module.exports = {
 
 	socketIO: { serveClient: false },
 
-	webpack: {
-		entry: { 'bundle': entry },
+	webpack() {
+		return {
+			entry: { 'bundle': entry },
 
-		output: {
-			path: path.resolve($$$.paths.dist),
-			filename: "[name].js"
-		},
-
-		module: {
-			rules: [
-				{ test: /\.js$/, use: {
-					loader: 'babel-loader',
-					options: {
-						babelrc: true,
-						presets: ['@babel/preset-env']
-					}
-				}},
-				{ test: /\.vue$/, use: {
-					loader: 'vue-loader',
-					options: {
-						loaders: {
-							template: 'html-loader',
-							js: 'babel-loader',
-							scss: 'vue-style-loader!css-loader!sass-loader?indentedSyntax',
-						}
-					}
-				}},
-				{ test: /\.s[a|c]ss$/, use: ['sass-loader']},
-				{ test: /\.css$/, use: [ 'style-loader', 'css-loader' ] },
-			]
-		},
-
-		resolve: {
-			alias: {
-				'~bpa': bpaPaths.root,
-				'~bpa-libs': bpaPaths.server,
-				'~bpa-js': bpaPaths.client + '/js',
-				'~bpa-vue': bpaPaths.client + '/vue',
-				'~extensions': bpaPaths.server + '/extensions.js',
-				'~libs': $$$.paths.server,
-			}
-		},
-
-		resolveLoader: {
-			alias: {
-				'scss-loader': 'sass-loader',
+			output: {
+				path: path.resolve( $$$.paths.dist ),
+				filename: "[name].js"
 			},
-		},
 
-		optimization: {
-			minimize: $$$.env.isProd,
-		},
+			module: {
+				rules: [
+					{
+						test: /\.js$/, use: {
+							loader: 'babel-loader',
+							options: {
+								babelrc: true,
+								presets: ['@babel/preset-env']
+							}
+						}
+					},
+					{
+						test: /\.vue$/, use: {
+							loader: 'vue-loader',
+							options: {
+								loaders: {
+									template: 'html-loader',
+									js: 'babel-loader',
+									scss: 'vue-style-loader!css-loader!sass-loader?indentedSyntax',
+								}
+							}
+						}
+					},
+					{ test: /\.s[a|c]ss$/, use: ['sass-loader'] },
+					{ test: /\.css$/, use: ['style-loader', 'css-loader'] },
+				]
+			},
 
-		plugins: [
-			new webpack.DefinePlugin({ENV: $$$.env})
-		]
+			resolve: {
+				alias: {
+					'~bpa': bpaPaths.root,
+					'~bpa-libs': bpaPaths.server,
+					'~bpa-js': bpaPaths.client + '/js',
+					'~bpa-vue': bpaPaths.client + '/vue',
+					'~extensions': bpaPaths.server + '/extensions.js',
+					'~libs': $$$.paths.server,
+				}
+			},
+
+			resolveLoader: {
+				alias: {
+					'scss-loader': 'sass-loader',
+				},
+			},
+
+			optimization: {
+				minimize: $$$.env.isProd,
+			},
+
+			plugins: [
+				new webpack.DefinePlugin( { ENV: $$$.env } )
+			]
+		}
 	}
 };

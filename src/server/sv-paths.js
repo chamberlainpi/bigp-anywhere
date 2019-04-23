@@ -1,5 +1,3 @@
-const fs = require('fs-extra');
-
 const _internal = __dirname.fixSlash();
 const _root = _internal.removeAfter('/src');
 const projectRoot = process.cwd().fixSlash();
