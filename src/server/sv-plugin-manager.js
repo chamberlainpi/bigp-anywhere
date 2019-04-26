@@ -31,7 +31,7 @@ module.exports = class PluginManager {
 
 		const toPromise = path => {
 			if ( !fs.existsSync( path ) ) {
-				throw ( 'Cannot add non-existant plugins directory: ' + path );
+				return trace.FAIL( 'Cannot add non-existant plugins directory: ' + path );
 			}
 
 			if ( _this._moduleDirs.has( path ) ) {
@@ -44,6 +44,8 @@ module.exports = class PluginManager {
 			return $$$
 				.requireDir( path, _.extend( { filter: 'plugin*' }, params ) )
 				.then( modules => {
+					trace.OK( 'Adding plugins directory: ' + path );
+
 					modules.forEach( pluginCls => {
 						const name = pluginCls.name.remove( 'Plugin' );
 
@@ -64,6 +66,7 @@ module.exports = class PluginManager {
 		};
 
 		return Promise.each( paths, toPromise )
+			.then( () => $$$.wait(1000))
 			.then( () => _this );
 	}
 
@@ -77,6 +80,7 @@ module.exports = class PluginManager {
 		let m = 0;
 		const failed = [];
 		const mods = this._modules;
+		const _this = this;
 
 		log("Start calling: ".green + methodName);
 
@@ -95,7 +99,15 @@ module.exports = class PluginManager {
 
 			log(`${plugin.name}.${methodName} = ${result}`.cyan);
 
-			return Promise.resolve(result).then(nextCall);
+			return Promise.resolve( result )
+				.then( result2 => {
+					if ( _.isObject( result2 ) && result2.$callEach ) {
+						return _this.callEach( result2.$callEach );
+					}
+					
+					return result2;
+				})
+				.then( nextCall );
 		}
 
 		function onDone() {

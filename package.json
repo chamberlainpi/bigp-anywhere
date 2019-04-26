@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "anymatch": "^2.0.0",
+    "axios": "^0.18.0",
     "bluebird": "^3.5.4",
     "body-parser": "^1.18.2",
     "chokidar": "^2.0.3",
@@ -47,6 +48,7 @@
     "babel-loader": "^8.0.0-beta",
     "babel-plugin-wildcard": "^4.0.0",
     "chai": "^4.1.2",
+    "mocha": "^6.1.4",
     "webpack": "^4.28.3",
     "webpack-cli": "^3.2.0"
   },

@@ -4,11 +4,16 @@
 
 const opn = require('opn');
 
-const cfgAutoOpen = $$$.config.autoOpen || {};
+let cfg;
 
 module.exports = class PluginAutoOpen {
+	configure() { }
+	addEvents() { }
+	
 	init() {
 		const _this = this;
+
+		cfg = $$$.config.autoOpen || {};
 
 		this.routes = {
 			'/auto-open-check'(req, res, next) {
@@ -18,21 +23,18 @@ module.exports = class PluginAutoOpen {
 		}
 	}
 
-	configure() {}
-	addEvents() {}
-
 	start() {
-		if(!cfgAutoOpen.enabled) return trace("AUTO-OPEN disabled".bgRed);
-		if(!cfgAutoOpen.delay) cfgAutoOpen.delay = 3000;
+		if(!cfg.enabled) return trace("AUTO-OPEN disabled".bgYellow);
+		if(!cfg.delay) cfg.delay = 3000;
 
 		this._lastChecked = 0;
 
-		let counter = cfgAutoOpen.count;
+		let counter = cfg.count;
 		_.repeatUntil(1000, stop => {
 			const now = new Date().getTime();
 			const diff = now - this._lastChecked;
 
-			if(diff<cfgAutoOpen.delay) {
+			if(diff<cfg.delay) {
 				trace("-OK-".bgGreen + " Browser Already opened! :)");
 				return stop();
 			}

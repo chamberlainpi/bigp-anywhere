@@ -22,6 +22,10 @@ const noFunc = v => v;
 
 _.extend( $$$, {
 	filterFiles( path, filter, isRecursive ) {
+		const errUndefined = 'Cannot pass an *undefined* value in $$$.filterFiles!';
+
+		if ( !path || path == undefined ) throw new Error( errUndefined );
+		
 		if ( _.isString( filter ) ) {
 			const str = filter;
 			filter = f => f.has( str );
@@ -34,6 +38,9 @@ _.extend( $$$, {
 
 		if ( _.isArray( path ) ) {
 			path = _.uniq( path );
+
+			if ( path.has( null, undefined ) ) throw new Error( errUndefined );
+
 			const calls = path.map( p => $$$.filterFiles( p, filter, isRecursive ) );
 
 			return Promise.all( calls ).then( $$$.mergeAll );
@@ -99,6 +106,19 @@ _.extend( $$$, {
 	deferExit( timeMS, exitMsg ) {
 		exitMsg && trace( exitMsg );
 		setTimeout( () => process.exit(), timeMS );
+	},
+
+	readFirstAvailable( paths ) {
+		if ( !_.isArray( paths ) ) paths = [paths];
+		
+		return Promise.resolve()
+			.then( () => {
+				var exists = paths.filter( p => fs.existsSync( p ) );
+
+				if ( exists.length == 0 ) return '';
+
+				return $$$.readFile( exists[0] );
+			} );
 	},
 
 	requireAuto(path) {

@@ -1,7 +1,7 @@
 const _internal = __dirname.fixSlash();
 const _root = _internal.removeAfter('/src');
 const projectRoot = process.cwd().fixSlash();
-const paths = _.extend(makePaths(projectRoot), {_bpa: makePaths(_root)});
+const paths = _.extend( makePaths(projectRoot), {_bpa: makePaths(_root)}) ;
 
 module.exports = paths;
 
@@ -19,7 +19,7 @@ function makePaths(root) {
 		server: src + '/server',
 		plugins: src + '/plugins',
 		commands: src + '/commands',
-		tests: src + '/tests',
+		tests: root + '/tests',
 		public: root + '/public',
 		dist: root + '/public/dist',
 		data: root + '/.private/data',

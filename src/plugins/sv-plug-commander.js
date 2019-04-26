@@ -16,6 +16,7 @@ module.exports = class PluginCommander {
 			.option( 'verbose', { alias: 'v', describe: 'Log more details in the console.' } )
 			.option( 'command', { alias: 'c', describe: 'Run some utility commands (built-in OR customs).' } )
 			.option( 'help', { alias: 'h', describe: 'Provide some help' } )
+			.option( 'test', { alias: 't', describe: 'Run the mocha/chai test cases.' } )
 			.option( 'what', { alias: '?', describe: 'Provide more details on a specific command' } )
 			.argv;
 		

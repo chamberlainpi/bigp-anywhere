@@ -4,7 +4,7 @@
 
 const fs = require('fs-extra');
 
-const DEBUG = o => true && trace(o);
+const DEBUG = o => !$$$.env.test && trace(o);
 
 module.exports = function obj2routes(routesObj, options) {
 	const app = options.app;
@@ -27,8 +27,9 @@ module.exports = function obj2routes(routesObj, options) {
 		const method = routeArr.length===1 ? 'get' : routeArr[0].toLowerCase();
 		const subPath = routeArr.length===1 ? routeArr[0] : routeArr[1];
 		const sendfile = (req, res, next) => res.sendFile(obj);
-		const senddata = (req, res, next) => res.send(obj);
-		const DEBUG_HEADER = `app.${method}("${subPath}"): `.padEnd(30);
+		const senddata = ( req, res, next ) => res.send( obj );
+		
+		const DEBUG_HEADER = `\u251C app.${method}("${subPath}"): `.padEnd(32);
 		
 		function _routeDebug(log, cb, what) {
 			DEBUG(DEBUG_HEADER + log.bgCyan.black + ' ' + (what || ''));
@@ -42,12 +43,13 @@ module.exports = function obj2routes(routesObj, options) {
 				return _routeDebug("MEMORY", options.memoryMiddleware);
 			} else if(key.has('.')) {
 				return _routeDebug("DIRECT FILE", sendfile);
-			} else if(obj.split('/').length>2) {
-				if(!fs.existsSync(obj)) {
-					DEBUG("Missing directory: ".red + obj); //Cannot serve 
+			} else if ( obj.split( '/' ).length > 2 ) {
+				var missing = '';
+				if ( !fs.existsSync( obj ) ) {
+					missing = " (Missing directory)".red; //Cannot serve 
 				}
 
-				return _routeDebug("STATIC DIR", express.static(obj), obj);
+				return _routeDebug( "STATIC DIR", express.static( obj ), obj + missing );
 			} else {
 				return _routeDebug("STRING DATA", senddata, obj);
 			}
@@ -68,8 +70,8 @@ module.exports = function obj2routes(routesObj, options) {
 		} else {
 			DEBUG(DEBUG_HEADER + "CHILD...".bgCyan.black);
 			const childRouter = _recursive(obj);
-
-			router[method](subPath, childRouter);
+			
+			router.use(subPath, childRouter);
 		}
 	}
 

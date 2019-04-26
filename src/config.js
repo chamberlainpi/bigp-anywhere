@@ -1,7 +1,11 @@
 const webpack = require('webpack');
-const path = require('path');
-const entry = $$$.paths.client + '/entry.js';
-const bpaPaths = $$$.paths._bpa;
+const path = require( 'path' );
+const p = $$$.paths;
+const entry = p.client + '/entry.js';
+
+var session = {
+	count: 0
+};
 
 module.exports = {
 	isSlowRefresh: false,
@@ -15,25 +19,27 @@ module.exports = {
         port: 9999,
         routes: {
 			//'/api/*'(req, res, next) {next()},
+			'/count'( req, res, next ) {
+				res.send( { count: session.count++ } );
+			},
 
-			'/js/extensions.js': bpaPaths.server + '/extensions.js',
-
-			'/*': ['*MEMORY*', $$$.paths.public, bpaPaths.public],
+			'/js/extensions.js': p._bpa.server + '/extensions.js',
 
 			'/test': {
-				'/': "test"
-			}
+				'/abc': "This is abc",
+				'/*': "This is a testtttt",
+			},
+			
+			'/*': ['*MEMORY*', p.public, p._bpa.public],
 		},
     },
 
 	sass: {
 		delayUpdate: 500,
-		output: $$$.paths.public + '/css/styles.css',
+		output: p.public + '/css/styles.css',
 		compiler: {
-			file: bpaPaths.client + '/css/-main.scss',
-			includePaths: [
-				$$$.paths.client + '/css'
-			]
+			file: p._bpa.client + '/css/-main.scss',
+			includePaths: [ p.client + '/css' ]
 		},
 	},
 
@@ -44,7 +50,7 @@ module.exports = {
 			entry: { 'bundle': entry },
 
 			output: {
-				path: path.resolve( $$$.paths.dist ),
+				path: path.resolve( p.dist ),
 				filename: "[name].js"
 			},
 
@@ -78,12 +84,12 @@ module.exports = {
 
 			resolve: {
 				alias: {
-					'~bpa': bpaPaths.root,
-					'~bpa-libs': bpaPaths.server,
-					'~bpa-js': bpaPaths.client + '/js',
-					'~bpa-vue': bpaPaths.client + '/vue',
-					'~extensions': bpaPaths.server + '/extensions.js',
-					'~libs': $$$.paths.server,
+					'~bpa': p._bpa.root,
+					'~bpa-libs': p._bpa.server,
+					'~bpa-js': p._bpa.client + '/js',
+					'~bpa-vue': p._bpa.client + '/vue',
+					'~extensions': p._bpa.server + '/extensions.js',
+					'~libs': p.server,
 				}
 			},
 

@@ -116,6 +116,20 @@
 				}
 
 				return lines.join(sep);
+			},
+			replaceBrackets( replacements ) {
+				if ( !replacements ) return this;
+
+				var content = this + '';
+				_.forOwn( replacements, ( value, prop ) => {
+					const regx = new RegExp( '{{' + prop + '}}', 'g' );
+					content = content.replace( regx, value );
+				} )
+
+				return content;
+			},
+			toCleanArray( delim = ',') {
+				return this.split( delim ).map( a => a.trim() );
 			}
 		});
 
