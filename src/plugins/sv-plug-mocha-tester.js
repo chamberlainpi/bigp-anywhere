@@ -11,9 +11,6 @@ var mocha;
 var testPaths;
 
 module.exports = class PluginMochaTester {
-	// init() { }
-	// addEvents() { }
-
 	configure() {
 		if ( !$$$.env.test ) return;
 
@@ -23,14 +20,12 @@ module.exports = class PluginMochaTester {
 
 		trace( "Preparing to run mocha-chai test cases...".green );
 		
-		//bail:1, ui:'tdd'
-		mocha = new MochaClass( $$$.config.mocha || {bail:1} );
+		mocha = new MochaClass( $$$.config.mocha || {bail:true} );
 
 		const addTests = files => files.forEach( f => mocha.addFile( f ) )
 
 		return $$$.filterFiles( testPaths, '.js' )
 			.then( files => {
-				trace( files );
 				files.sort();
 				return files;
 			} )
@@ -56,14 +51,17 @@ module.exports = class PluginMochaTester {
 
 		MochaClass.it( prop, done => {
 			var pre = fn;
-
 			this.currentRequest = null;
 
 			if ( rxRequestFormat.test(prop) ) {
 				const req = this.parseRequest( propRequest );
 				const smartFunc = this.parseSmartFunc( req, fn );
 				pre = axios[req.method]( req.url )
-					.then( smartFunc );	
+					.then( smartFunc )
+					.catch( err => {
+						trace.FAIL( `${req.url.red} -- ${req.comment.yellow} - ${err.message.replace( /([0-9]+)/g, '$1'.red )}` );
+						done( err );
+					})
 			}
 
 			Promise.resolve()

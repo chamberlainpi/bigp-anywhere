@@ -1,7 +1,12 @@
+const path = require( 'path' );
 const _internal = __dirname.fixSlash();
-const _root = _internal.removeAfter('/src');
+const _root = _internal.removeAfter( '/src' );
 const projectRoot = process.cwd().fixSlash();
-const paths = _.extend( makePaths(projectRoot), {_bpa: makePaths(_root)}) ;
+const paths = _.extend( pathJoin, makePaths(projectRoot), {_bpa: makePaths(_root)}) ;
+
+function pathJoin() {
+	return path.join.apply( null, arguments ).fixSlash();
+}
 
 module.exports = paths;
 
@@ -15,6 +20,7 @@ function makePaths(root) {
 	return {
 		root: root,
 		src: src,
+		apps: src + '/apps',
 		client: src + '/client',
 		server: src + '/server',
 		plugins: src + '/plugins',

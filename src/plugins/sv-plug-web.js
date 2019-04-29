@@ -10,12 +10,12 @@ const session = require('express-session');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const cookieSession = require('cookie-session');
-const obj2routes = require('../server/sv-obj-2-routes');
+const EVENTS = require( '../server/constants' ).EVENTS;
+const obj2routes = require( '../server/sv-obj-2-routes' );
 const app = $$$.app = express();
 const server = $$$.server = http.createServer(app);
 
-const config = $$$.config.web;
-if(!config.port) config.port = 3333;
+let config;
 
 module.exports = class PluginWeb {
 	init() {
@@ -23,16 +23,19 @@ module.exports = class PluginWeb {
 		this._dynamicObject = {};
 		this._isRoutesDirty = false;
 		this._isStarted = false;
+
+		config = $$$.config.web;
+
+		if ( !config.port ) config.port = 3333;
 	}
 
 	configure( config ) {
-		$$$.memFS.writeFileSync( "/test.txt", 'Testing', 'utf8' );
+		$$$.memFS.writeFileSync( "/test.txt", 'Test file.', 'utf8' );
 		$$$.memFS.writeFileSync( "/favicon.ico", '', 'utf8' );
-
+		
 		app.use( ( req, res, next ) => {
 			res.on( 'finish', () => {
-				//Omit status logs while TESTING the module
-				if ( $$$.env.test ) return;
+				if ( $$$.env.test ) return; //Omit status logs while TESTING the module
 				
 				var codeStr = String( res.statusCode );
 				codeStr = codeStr[res.statusCode < 400 ? 'green' : 'red'];
@@ -48,14 +51,18 @@ module.exports = class PluginWeb {
 			throw 'Intentional Request Crash!';
 		} );
 
+		app.use( '/test', ( req, res, next ) => {
+			res.send('Testing!');
+		} );
+
 		app.use( this.middlewareDynamic.bind( this ) );
 		app.use( ( req, res, next ) => this.middlewareErrors( 'File not found', req, res, next ) );
 		app.use( this.middlewareErrors.bind( this ) );
 		
-		this.addRoutes(config.web.routes);
-	}
+		$$$.plugins.forEach( 'routes', routes => this.addRoutes( routes ) );
 
-	addEvents() {}
+		this.addRoutes( config.web.routes );
+	}
 
 	start() {
 		if ( this._isStarted ) return trace( "Already started!".red );
@@ -66,7 +73,8 @@ module.exports = class PluginWeb {
 		return new Promise( _then => {
 			server.listen( config.port, () => {
 				trace( "  *STARTED*  ".bgGreen + ' ' + this.localhost );
-				_then( { $callEach:'ready'});
+				$$$.emit( EVENTS.SERVER_READY );
+				_then();
 			} );
 		})
 	}
@@ -144,7 +152,7 @@ module.exports = class PluginWeb {
 		};
 
 		$$$.readFirstAvailable( tmp404 )
-			.then( content => content.replaceBracket( replacements ) )
+			.then( content => content.replaceBrackets( replacements ) )
 			.then( send404 );
 	}
 	

@@ -4,16 +4,13 @@
 
 const opn = require('opn');
 
-let cfg;
+let config;
 
 module.exports = class PluginAutoOpen {
-	configure() { }
-	addEvents() { }
-	
 	init() {
 		const _this = this;
 
-		cfg = $$$.config.autoOpen || {};
+		config = $$$.config.autoOpen || {};
 
 		this.routes = {
 			'/auto-open-check'(req, res, next) {
@@ -24,17 +21,17 @@ module.exports = class PluginAutoOpen {
 	}
 
 	start() {
-		if(!cfg.enabled) return trace("AUTO-OPEN disabled".bgYellow);
-		if(!cfg.delay) cfg.delay = 3000;
+		if(!config.enabled) return trace("AUTO-OPEN disabled".bgYellow);
+		if(!config.delay) config.delay = 3000;
 
 		this._lastChecked = 0;
 
-		let counter = cfg.count;
+		let counter = config.count;
 		_.repeatUntil(1000, stop => {
 			const now = new Date().getTime();
 			const diff = now - this._lastChecked;
 
-			if(diff<cfg.delay) {
+			if(diff<config.delay) {
 				trace("-OK-".bgGreen + " Browser Already opened! :)");
 				return stop();
 			}
@@ -50,6 +47,6 @@ module.exports = class PluginAutoOpen {
 	}
 
 	openURL() {
-		opn('http://localhost:' + $$$.config.web.port);
+		opn( 'http://localhost:' + config.web.port);
 	}
 }

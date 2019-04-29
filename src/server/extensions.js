@@ -168,7 +168,10 @@
 
 		_.extend($$$, {
 			randID() {
-				return new Date().getTime().toString(36);
+				return $$$.now().toString(36);
+			},
+			now() {
+				return new Date().getTime();
 			}
 		});
 

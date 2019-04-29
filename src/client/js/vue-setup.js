@@ -1,7 +1,10 @@
+const EVENTS = require( '../../server/constants' ).EVENTS;
+
 const VueSetup = {
 	_components: {},
 
-	init(config) {
+	init( config ) {
+		if ( !config ) throw 'Missing Vue config object!';
 		if(!config.app) throw 'Missing Vue <App /> definition! Please provide a config.app parameter!';
 
 		Vue.use(VueRouter);
@@ -33,7 +36,7 @@ const VueSetup = {
 			'view': {
 				inserted(el, binding, vnode) {
 					trace(el);
-					$$$.on('@route-changed', (to, from) => {
+					$$$.on( EVENTS.ROUTE_CHANGED, (to, from) => {
 						trace(to.path);
 					});
 
@@ -57,13 +60,13 @@ const VueSetup = {
 			components: {App: config.app},
 			watch: {
 				'$route'(to, from) {
-					$$$.emit('@route-changed', to, from);
+					$$$.emit( EVENTS.ROUTE_CHANGED, to, from);
 				}
 			}
 		});
 	},
 
-	registerComponentByName(compVue, name) {
+	registerComponentByName( compVue, name ) {
 		var comp = Vue.extend(compVue);
 		VueSetup._components[name] = comp;
 		Vue.component(name, comp);

@@ -6,8 +6,6 @@ const MFS = require( 'memory-fs' );
 const yargs = require( 'yargs' );
 
 module.exports = class PluginCommander {
-	// init() { }  configure() { }  addEvents() { }
-
 	preinit() {
 		$$$.memFS = new MFS();
 

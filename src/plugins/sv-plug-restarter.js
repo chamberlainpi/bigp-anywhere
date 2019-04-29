@@ -9,8 +9,4 @@ module.exports = class PluginRestarter {
 	configure() {
 
 	}
-
-	addEvents() {
-
-	}
 }
