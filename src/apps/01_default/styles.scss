@@ -1,3 +1,23 @@
-* {
-    color: #f22 !important;
+.outer-app, .inner-app {
+    display: block;
+}
+
+.outer-app {
+    background: #aad;
+    width: 100vw;
+    height: 100vh;
+}
+
+.app {
+    padding: 20px;
+}
+
+.btn {
+    --btnNormal: #08f;
+    --btnHover: #f0f;
+}
+
+.test {
+    color: #f22;
+    font-size: 120%;
 }

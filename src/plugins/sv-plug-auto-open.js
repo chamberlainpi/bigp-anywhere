@@ -47,6 +47,6 @@ module.exports = class PluginAutoOpen {
 	}
 
 	openURL() {
-		opn( 'http://localhost:' + config.web.port);
+		opn( 'http://localhost:' + _.result( config, 'web.port') );
 	}
 }

@@ -30,8 +30,6 @@ module.exports = class PluginWebpack {
 				return $$$.io.emit( EVENTS.FILE_CHANGED, path );
 			}
 
-			path && trace( "File that changed: " + path );
-
 			this.run();
 		});
 	}

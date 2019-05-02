@@ -47,11 +47,17 @@ module.exports = class PluginWatcher {
 	}
 
 	onFileChanged( event, path ) {
-		if ( event === 'change' && check.hasPublic( path ) ) {
-			this.onPublicChanged( path );
-		} else {
-			this.onServerChanged( path );
-		}
+		trace( "CHOKIDAR (2s): " + event + " : " + path );
+
+		$$$.wait( 2000 )
+			.then( () => {
+				if ( event === 'change' && check.hasPublic( path ) ) {
+					this.onPublicChanged( path );
+				} else {
+					this.onServerChanged( path );
+				}
+			} );
+		
 	}
 
 	onPublicChanged( path ) {

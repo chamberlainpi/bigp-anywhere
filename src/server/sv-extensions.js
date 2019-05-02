@@ -192,8 +192,12 @@ _.extend( $$$, {
 		return require( path );
 	},
 
-	mergeIfExists( paths ) {
+	mergeIfExists( paths, suffix ) {
 		const result = {};
+
+		if ( suffix ) {
+			paths = paths.map( p => p + suffix );
+		}
 
 		paths.forEach(path => {
 			path = path.has('.js') ? path : path + '.js';

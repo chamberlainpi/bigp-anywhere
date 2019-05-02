@@ -24,12 +24,12 @@ module.exports = class PluginWeb {
 		this._isRoutesDirty = false;
 		this._isStarted = false;
 
-		config = $$$.config.web;
-
+		config = _.result( $$$.config, 'web' );
+		
 		if ( !config.port ) config.port = 3333;
 	}
 
-	configure( config ) {
+	configure() {
 		$$$.memFS.writeFileSync( "/test.txt", 'Test file.', 'utf8' );
 		$$$.memFS.writeFileSync( "/favicon.ico", '', 'utf8' );
 		
@@ -61,7 +61,7 @@ module.exports = class PluginWeb {
 		
 		$$$.plugins.forEach( 'routes', routes => this.addRoutes( routes ) );
 
-		this.addRoutes( config.web.routes );
+		this.addRoutes( config.routes );
 	}
 
 	start() {

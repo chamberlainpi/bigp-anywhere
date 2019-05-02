@@ -8,11 +8,22 @@ function pathJoin() {
 	return path.join.apply( null, arguments ).fixSlash();
 }
 
+function pathUnfix( p ) {
+	return path.resolve( p );
+}
+
 module.exports = paths;
 
 //Appends the project-dir's /node_modules/ to the resolvable paths:
-module.paths.unshift(paths.node_modules.replace('/', '\\'));
-module.paths = module.paths.slice(0, -3);
+//module.paths.unshift(paths.node_modules.replace(/\//g, '\\'));
+module.paths = [
+	pathUnfix( paths._bpa.node_modules ),
+	pathUnfix( paths.node_modules ),
+];
+
+// trace( "-------------------" );
+// trace( module.paths );
+// process.exit();
 
 function makePaths(root) {
 	const src = root + '/src';

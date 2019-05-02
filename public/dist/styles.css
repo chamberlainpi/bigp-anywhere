@@ -1,0 +1,243 @@
+/* -------------------------------------------------------------
+  Sass CSS3 Mixins! The Cross-Browser CSS3 Sass Library
+  By: Matthieu Aussaguel, http://www.mynameismatthieu.com, @matthieu_tweets
+
+  List of CSS3 Sass Mixins File to be @imported and @included as you need
+
+  The purpose of this library is to facilitate the use of CSS3 on different browsers avoiding HARD TO READ and NEVER
+  ENDING css files
+
+  note: All CSS3 Properties are being supported by Safari 5
+  more info: http://www.findmebyip.com/litmus/#css3-properties
+
+------------------------------------------------------------- */
+@import url("https://fonts.googleapis.com/css?family=Roboto");
+body {
+  font-family: 'Roboto', Arial, sans-serif; }
+
+h1, h2, h3 {
+  -webkit-text-shadow: 1px 1px 2px #444;
+  -khtml-text-shadow: 1px 1px 2px #444;
+  -moz-text-shadow: 1px 1px 2px #444;
+  -ms-text-shadow: 1px 1px 2px #444;
+  -o-text-shadow: 1px 1px 2px #444;
+  text-shadow: 1px 1px 2px #444;
+  font-weight: bold; }
+
+h1 {
+  font-size: 180%; }
+
+h2 {
+  font-size: 150%; }
+
+h3 {
+  font-size: 120%; }
+
+h4 {
+  font-size: 120%; }
+
+p {
+  margin-bottom: 10px; }
+
+em {
+  font-style: italic; }
+
+strong {
+  font-weight: bold; }
+
+strong em {
+  color: #464;
+  padding: 0px 2px;
+  border-bottom: dotted 1px #aaa; }
+
+code {
+  background: #aaa;
+  border: solid 1px #333;
+  border-radius: 4px;
+  padding: 2px 5px;
+  color: #000;
+  box-shadow: 1px 1px 4px 1px rgba(0, 0, 0, 0.5) inset; }
+
+body {
+  --btnHover: #fff;
+  --btnNormal: transparent; }
+
+.center {
+  text-align: center; }
+
+.breadcrumb {
+  /*centering*/
+  display: inline-block;
+  box-shadow: 0 0 15px 1px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+  border-radius: 5px;
+  /*Lets add the numbers for each link using CSS counters. flag is the name of the counter. to be defined using counter-reset in the parent element of the links*/
+  counter-reset: flag;
+  float: left; }
+
+.breadcrumb * {
+  margin: 0;
+  padding: 0; }
+
+.breadcrumb li {
+  /* Internet Explorer 10 */
+  display: -ms-flexbox;
+  -ms-flex-pack: center;
+  -ms-flex-align: center;
+  /* Firefox */
+  display: -moz-box;
+  -moz-box-pack: center;
+  -moz-box-align: center;
+  /* Safari, Opera, and Chrome */
+  display: -webkit-box;
+  -webkit-box-pack: center;
+  -webkit-box-align: center;
+  /* W3C */
+  display: box;
+  box-pack: center;
+  box-align: center;
+  height: 100%;
+  outline: none;
+  float: left;
+  height: 40px;
+  /*need more margin on the left of links to accomodate the numbers*/
+  padding: 0 10px 0 30px;
+  position: relative; }
+
+/*since the first link does not have a triangle before it we can reduce the left padding to make it look consistent with other links*/
+.breadcrumb li:first-child {
+  padding-left: 20px;
+  border-radius: 0 0 0 0;
+  /*to match with the parent's radius*/ }
+
+.breadcrumb li:first-child:before {
+  left: 14px; }
+
+.breadcrumb li:last-child {
+  border-radius: 0 5px 5px 0;
+  /*this was to prevent glitches on hover*/ }
+
+/*adding the arrows for the breadcrumbs using rotated pseudo elements*/
+.breadcrumb li:after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: -20px;
+  /*half of square's length*/
+  /*same dimension as the line-height of .breadcrumb a */
+  width: 40px;
+  height: 40px;
+  /*as you see the rotated square takes a larger height. which makes it tough to position it properly. So we are going to scale it down so that the diagonals become equal to the line-height of the link. We scale it to 70.7% because if square's:
+  length = 1; diagonal = (1^2 + 1^2)^0.5 = 1.414 (pythagoras theorem)
+  if diagonal required = 1; length = 1/1.414 = 0.707*/
+  transform: scale(0.707) rotate(45deg);
+  /*we need to prevent the arrows from getting buried under the next link*/
+  z-index: 1;
+  /*background same as links but the gradient will be rotated to compensate with the transform applied*/
+  background: #666;
+  background: linear-gradient(135deg, #666, #333);
+  /*stylish arrow design using box shadow*/
+  box-shadow: 2px -2px 0 2px rgba(0, 0, 0, 0.4), 3px -3px 0 2px rgba(255, 255, 255, 0.1);
+  /*
+      5px - for rounded arrows and
+      50px - to prevent hover glitches on the border created using shadows*/
+  border-radius: 0 5px 0 50px; }
+
+/*we dont need an arrow after the last link*/
+.breadcrumb li:last-child:after {
+  content: none; }
+
+.breadcrumb a {
+  color: inherit;
+  text-decoration: none; }
+
+.breadcrumb {
+  font-size: 12px;
+  color: #fff;
+  text-shadow: 1px 1px 1px #000; }
+  .breadcrumb .primary.active:after, .breadcrumb .primary:hover:after {
+    background: #0ff;
+    background: linear-gradient(135deg, #0ff, #000); }
+  .breadcrumb .cr-single {
+    padding-right: 20px; }
+  .breadcrumb .cr-0, .breadcrumb .cr-1, .breadcrumb .cr-2 {
+    font-weight: bold; }
+  .breadcrumb .cr-0 {
+    font-size: 150%; }
+  .breadcrumb .cr-1 {
+    font-size: 120%; }
+  .breadcrumb .cr-2 {
+    font-size: 110%; }
+  .breadcrumb .cr-0 {
+    width: 110px; }
+    .breadcrumb .cr-0 .icon {
+      margin-right: 5px; }
+  .breadcrumb li {
+    transform-style: flat;
+    background: var(--bgColor);
+    background: linear-gradient(180deg, var(--bgColor), #333);
+    /*hover/active styles*/ }
+    .breadcrumb li:after {
+      transform-style: flat;
+      background: var(--bgColor);
+      background: linear-gradient(135deg, var(--bgColor), #333); }
+    .breadcrumb li.active, .breadcrumb li:hover {
+      background: var(--bgColorHover);
+      background: linear-gradient(180deg, var(--bgColorHover), #333); }
+    .breadcrumb li.active:after, .breadcrumb li:hover:after {
+      background: var(--bgColorHover);
+      background: linear-gradient(135deg, var(--bgColorHover), #333); }
+
+.outer-app, .inner-app {
+  display: block; }
+
+.outer-app {
+  background: #aad;
+  width: 100vw;
+  height: 100vh; }
+
+.app {
+  padding: 20px; }
+
+.btn {
+  --btnNormal: #08f; }
+
+.test {
+  color: #f22;
+  font-size: 120%; }
+
+.v-middle {
+  vertical-align: middle; }
+
+.v-top {
+  vertical-align: top; }
+
+.v-bottom {
+  vertical-align: bottom; }
+
+.padded {
+  padding: 10px; }
+
+.padded-1 {
+  padding: 10px; }
+
+.padded-2 {
+  padding: 20px; }
+
+.padded-3 {
+  padding: 30px; }
+
+.padded-4 {
+  padding: 40px; }
+
+.padded-5 {
+  padding: 50px; }
+
+.abs {
+  position: absolute; }
+
+.fixed {
+  position: fixed; }
+
+.init-hidden {
+  display: none; }

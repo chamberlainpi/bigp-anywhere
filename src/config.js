@@ -1,13 +1,21 @@
-const webpack = require('webpack');
+const patchResolve = require( './server/sv-patch-resolve' );
+const webpack = require( 'webpack' );
 const path = require( 'path' );
 const p = $$$.paths;
+const node_modules = [
+	p._bpa.node_modules,
+	p._bpa.root,
+	p.node_modules,
+	'./node_modules',
+];
 
-var session = {
-	count: 0
-};
+patchResolve( { from: p.root, to: p._bpa.root } );
 
-const appName = () => config.appName || '01_default';
-const appPath = () => p( p.apps, appName() );
+var session = { count: 0 };
+
+const appName = () => $$$.config.appName || '01_default';
+const appPath = ( index ) => p( p.apps, appName(), index || '' );
+const bpaAppPath = ( index ) => p( p._bpa.apps, appName(), index || '' );
 
 const config = module.exports = {
 	isSlowRefresh: false,
@@ -21,31 +29,36 @@ const config = module.exports = {
 		timeStartSkip: 5000,
 	},
 	
-    web: {
-        port: 9999,
-        routes: {
-			//'/api/*'(req, res, next) {next()},
-			'/count'( req, res, next ) {
-				res.send( { count: session.count++ } );
-			},
-			'/reset'( req, res, next ) {
-				res.send( { count: session.count = 0 } );
-			},
+	web() {
+		return {
+			port: 9999,
+			routes: {
+				//'/api/*'(req, res, next) {next()},
+				'/count'( req, res, next ) {
+					res.send( { count: session.count++ } );
+				},
+				'/reset'( req, res, next ) {
+					res.send( { count: session.count = 0 } );
+				},
 
-			'/js/extensions.js': p._bpa.server + '/extensions.js',
-			
-			'/*': ['*MEMORY*', p.public, p._bpa.public],
-		},
-    },
+				'/js/extensions.js': p._bpa.server + '/extensions.js',
+
+				'/*': ['*MEMORY*', appPath(), p.public, bpaAppPath(), p._bpa.public],
+			},
+		}
+	},
 
 	sass() {
 		return {
-			output: p.public + '/css/styles.css',
+			output: p.public + '/dist/styles.css',
 			compiler: {
 				file: p._bpa.client + '/css/-main.scss',
+				//sourceComments: true,
+				outputStyle: 'expanded',
 				includePaths: [
 					p.client + '/css',
 					appPath(),
+					bpaAppPath(),
 				]
 			},
 		}
@@ -54,8 +67,16 @@ const config = module.exports = {
 	socketIO: { serveClient: false },
 
 	webpack() {
-		const entry = p.client + '/entry.js';
+		const entries = [p.client, p._bpa.client]
+			.map( a => a + '/entry.js' )
+			.filter( dir => {
+				return $$$.fs.existsSync( dir );
+			} );
 		
+		if ( entries.length == 0 ) throw 'No entry.js file found in either BPA -or- current project folder:\n' + p.client;
+		
+		const entry = entries[0];
+
 		return {
 			mode: 'development',
 
@@ -72,8 +93,21 @@ const config = module.exports = {
 						test: /\.js$/, use: {
 							loader: 'babel-loader',
 							options: {
-								babelrc: true,
-								presets: ['@babel/preset-env']
+								"presets": [
+									"@babel/preset-env"
+								],
+								"plugins": [
+									[
+										"wildcard",
+										{
+											"noCamelCase": true,
+											"exts": [
+												"js",
+												"vue"
+											]
+										}
+									]
+								]
 							}
 						}
 					},
@@ -95,6 +129,7 @@ const config = module.exports = {
 			},
 
 			resolve: {
+				modules: node_modules,
 				alias: {
 					'~bpa': p._bpa.root,
 					'~bpa-libs': p._bpa.server,
@@ -107,6 +142,7 @@ const config = module.exports = {
 			},
 
 			resolveLoader: {
+				modules: node_modules,
 				alias: {
 					'scss-loader': 'sass-loader',
 				},

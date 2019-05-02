@@ -31,12 +31,5 @@ body {
 }
 
 .center { text-align: center; }
-.btn {
-  display: inline-block;
-  cursor: pointer;
-  background: var(--btnNormal);
-
-  &:hover { background: var(--btnHover); }
-}
 
 @mixin padded($p: 10px) { padding: $p; }

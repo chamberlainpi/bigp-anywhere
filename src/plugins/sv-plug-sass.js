@@ -11,10 +11,12 @@ module.exports = class PluginSass {
 	configure() {
 		config = _.result( $$$.config, 'sass' );
 		if ( !config.delayBlocker ) config.delayBlocker = 500;
-		if ( !config.delayEach ) config.delayEach = 250;
+		if ( !config.delayEach ) config.delayEach = 300;
 
-		fs = $$$.env.isProd ? require( 'fs-extra' ) : $$$.memFS;
+		this.isUsingMem = !$$$.env.isProd;
+		fs = this.isUsingMem ? $$$.memFS : require( 'fs-extra' );
 
+		
 		$$$.on( EVENTS.FILE_CHANGED, path => {
 			if ( !path.endsWith( '.scss' ) && !path.endsWith('.sass')) return;
 
@@ -36,8 +38,8 @@ module.exports = class PluginSass {
 		fs.mkdirpSync( config.output.toPath().dir );
 		
 		this.sassPromise( config.compiler )
-			.then( this.onSassRendered )
-			.then( this.onSassComplete )
+			.then( res => this.onSassRendered( res ) )
+			.then( res => this.onSassComplete( res ) )
 			/////////////////////////////
 			.catch( err => {
 				trace.FAIL( "Error in Sass-Compiler..." );
@@ -56,7 +58,7 @@ module.exports = class PluginSass {
 
 	onSassRendered( result ) {
 		return new Promise( ( _then, _catch ) => {
-			if ( fs == $$$.memFS ) {
+			if ( this.isUsingMem ) {
 				fs.writeFile( config.output, result.css, err => {
 					if ( err ) return _catch( err );
 					_then();
@@ -71,7 +73,7 @@ module.exports = class PluginSass {
 	}
 
 	onSassComplete() {
-		trace( "Sass completed: " + config.output );
+		trace( "  SASS  OK  ".bgMagenta + ' ' + config.output + (this.isUsingMem ? ' *MEMORY*'.yellow : '') );
 		$$$.io.emit( EVENTS.FILE_CHANGED, config.output );
 	}
 }

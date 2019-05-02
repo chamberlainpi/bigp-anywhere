@@ -5,12 +5,17 @@ const VueSetup = {
 
 	init( config ) {
 		if ( !config ) throw 'Missing Vue config object!';
-		if(!config.app) throw 'Missing Vue <App /> definition! Please provide a config.app parameter!';
+		if ( !config.app ) throw 'Missing Vue <App /> definition! Please provide a config.app parameter!';
 
 		Vue.use(VueRouter);
 	 	Vue.config.devtools = true;
 
-		config.components && _.forOwn(config.components, VueSetup.registerComponentByName);
+		if ( !_.isArray( config.components ) ) config.components = [config.components];
+		if ( config.components ) {
+			config.components.forEach( compKit => {
+				_.forOwn( compKit, VueSetup.registerComponentByName );
+			} );
+		}
 
 		//Here's some Vue extensions (to quickly get to some common areas throughout the app).
 		_.classy(Vue.prototype, {
@@ -67,6 +72,7 @@ const VueSetup = {
 	},
 
 	registerComponentByName( compVue, name ) {
+		trace( "Vue-Component + " + name );
 		var comp = Vue.extend(compVue);
 		VueSetup._components[name] = comp;
 		Vue.component(name, comp);
