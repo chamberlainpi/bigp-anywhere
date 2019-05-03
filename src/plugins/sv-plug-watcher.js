@@ -6,7 +6,7 @@ const EVENTS = require( '../server/constants' ).EVENTS;
 const chokidar = require( 'chokidar' );
 const anymatch = require( 'anymatch' );
 const check = {
-	hasPublic: p => p.has( 'public/' ) || p.has( 'client/' ) || p.has( 'apps/' ),
+	hasPublic: p => p.has( 'public/' ) || p.has( '/apps/' ),
 	hasDist: p => p.has('dist/')
 }
 
@@ -26,6 +26,8 @@ module.exports = class PluginWatcher {
 		watcher = this.watcher = chokidar.watch( config.dir, config );
 		watcher.on( 'all', this.onGlobalFileChanged.bind( this ) );
 		
+		this.isBusy = false;
+
 		this.add( /\./, '*', this.onFileChanged.bind( this ) );
 	}
 
@@ -47,17 +49,24 @@ module.exports = class PluginWatcher {
 	}
 
 	onFileChanged( event, path ) {
-		trace( "CHOKIDAR (2s): " + event + " : " + path );
+		if ( this.isBusy ) return;
 
-		$$$.wait( 2000 )
-			.then( () => {
-				if ( event === 'change' && check.hasPublic( path ) ) {
-					this.onPublicChanged( path );
-				} else {
-					this.onServerChanged( path );
-				}
-			} );
-		
+		this.isBusy = true;
+
+		const _notify = type => {
+			const seconds = 1;
+			trace( `Change ${type} (${seconds}s):\n - ${event.bgGreen} : ${path.green}` );
+
+			return $$$
+				.wait( seconds * 1000 )
+				.then( () => this.isBusy = false );
+		}
+
+		if ( event === 'change' && check.hasPublic( path ) ) {
+			_notify( 'PUBLIC'.cyan ).then( () => this.onPublicChanged( path ) );
+		} else {
+			_notify( 'SERVER'.yellow ).then( () => this.onServerChanged( path ) );
+		}
 	}
 
 	onPublicChanged( path ) {
@@ -65,9 +74,6 @@ module.exports = class PluginWatcher {
 	}
 
 	onServerChanged( path ) {
-		trace( "Server file changed..." );
-		trace( path );
-
 		process.exit();
 	}
 

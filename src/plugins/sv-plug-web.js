@@ -14,6 +14,7 @@ const EVENTS = require( '../server/constants' ).EVENTS;
 const obj2routes = require( '../server/sv-obj-2-routes' );
 const app = $$$.app = express();
 const server = $$$.server = http.createServer(app);
+const omitLogs = ['favicon'];
 
 let config;
 
@@ -39,8 +40,10 @@ module.exports = class PluginWeb {
 				
 				var codeStr = String( res.statusCode );
 				codeStr = codeStr[res.statusCode < 400 ? 'green' : 'red'];
-				var output = [req.method.green, codeStr, req.fullUrl().green, res.message];
-				trace( output.join( ' ' ) );
+				var output = [req.method.green, codeStr, req.fullUrl().green, res.message].join( ' ' );
+
+				if ( output.has.apply( output, omitLogs ) ) return;
+				trace( output );
 			} );
 			
 			next();

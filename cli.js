@@ -12,6 +12,7 @@ require( './src/server/sv-restarter' )( () => {
 
 	$$$.plugins = new PluginManager();
 	$$$.plugins.isSilent = true;
+	$$$.plugins.resolveAppName( $$$.config, $$$.paths );
 	$$$.plugins.loadFromPath( [paths._bpa.plugins, paths.plugins], PLUGIN_FILTERS )
 		.then( p => p.callEach( 'preinit' ) )
 		.then( p => p.callEach( 'init' ) )

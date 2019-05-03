@@ -16,9 +16,17 @@
     padding: 6px 8px;
     color: #fff;
     box-shadow: 2px 2px 0px #00000044;
+    user-select: none;
     
     background: var(--btnNormal);
-    &:hover { background: var(--btnHover); }
+    &:hover {
+        color: #000;
+        background: var(--btnHover);
+        transform: translate(-2px, -2px);
+        
+    }
+
+    transition: .2s transform;
 }
 </style>
 

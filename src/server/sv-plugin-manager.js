@@ -26,8 +26,13 @@ module.exports = class PluginManager {
 		trace( err );
 	}
 
+	resolveAppName( config, paths ) {
+		const appName = config.appName || '00_common';
+		paths.appPath = paths( paths.apps, appName );
+	}
+
 	loadFromPath( paths, params ) {
-		if ( !_.isArray( paths ) ) paths = [paths];
+		paths = _.castArray( paths );
 
 		const toPromise = path => {
 			if ( !fs.existsSync( path ) ) {

@@ -5,5 +5,8 @@ module.exports = {
         STYLE_CHANGED: '@style-changed',
         FORCE_RELOAD: '@force-reload',
         ROUTE_CHANGED: '@route-changed',
+    },
+    CLIENT_EVENTS: {
+        READY: '@ready',
     }
 }

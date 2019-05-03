@@ -3,9 +3,9 @@ import vueCommon from '~bpa-vue/common.js';
 import helpers from '~bpa-js/helpers';
 import hotReload from '~bpa-js/hot-reload';
 import vueSetup from '~bpa-js/vue-setup';
-import vueApp from '~bpa-app/app.vue';
-import vueComponents from '~bpa-app/components.js';
-import { EVENTS } from 'constants';
+import vueApp from '~app/app.vue';
+import vueComponents from '~app/components.js';
+import { CLIENT_EVENTS } from '~constants';
 
 $$$.io = io();
 
@@ -19,5 +19,5 @@ $$$( () => {
         components: [vueCommon.ui, vueComponents]
     } );
     
-    $$$.emit( 'ready' );
+    $$$.emit( CLIENT_EVENTS.READY );
 } );

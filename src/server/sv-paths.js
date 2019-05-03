@@ -32,7 +32,6 @@ function makePaths(root) {
 		root: root,
 		src: src,
 		apps: src + '/apps',
-		client: src + '/client',
 		server: src + '/server',
 		plugins: src + '/plugins',
 		commands: src + '/commands',

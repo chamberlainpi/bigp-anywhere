@@ -1,4 +1,4 @@
-const EVENTS = require( '../../server/constants' ).EVENTS;
+const EVENTS = require( '~constants' ).EVENTS;
 
 const VueSetup = {
 	_components: {},
@@ -10,7 +10,8 @@ const VueSetup = {
 		Vue.use(VueRouter);
 	 	Vue.config.devtools = true;
 
-		if ( !_.isArray( config.components ) ) config.components = [config.components];
+		config.components = _.castArray( config.components );
+
 		if ( config.components ) {
 			config.components.forEach( compKit => {
 				_.forOwn( compKit, VueSetup.registerComponentByName );
@@ -72,6 +73,8 @@ const VueSetup = {
 	},
 
 	registerComponentByName( compVue, name ) {
+		if ( !compVue || !name ) return;
+		
 		trace( "Vue-Component + " + name );
 		var comp = Vue.extend(compVue);
 		VueSetup._components[name] = comp;

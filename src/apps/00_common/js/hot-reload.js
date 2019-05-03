@@ -1,7 +1,7 @@
 /**
  * Created by Chamberlain on 4/4/2018.
  */
-const EVENTS = require( '../../server/constants' ).EVENTS;
+const EVENTS = require( '~constants' ).EVENTS;
 
 export default function SELF() {
 	const LIMIT = 2;

@@ -26,6 +26,10 @@ module.exports = class PluginWebpack {
 		}
 
 		$$$.on( EVENTS.FILE_CHANGED, path => {
+			if ( path.has( '/public/' )) {
+				return trace( "Webpack ignore /public/ modified files." );
+			}
+
 			if ( path && !path.has( ".vue", ".js" ) ) {
 				return $$$.io.emit( EVENTS.FILE_CHANGED, path );
 			}

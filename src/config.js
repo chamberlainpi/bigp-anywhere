@@ -16,6 +16,7 @@ var session = { count: 0 };
 const appName = () => $$$.config.appName || '01_default';
 const appPath = ( index ) => p( p.apps, appName(), index || '' );
 const bpaAppPath = ( index ) => p( p._bpa.apps, appName(), index || '' );
+const bpaCommon = ( index ) => p( p._bpa.apps, '00_common', index || '' );
 
 const config = module.exports = {
 	isSlowRefresh: false,
@@ -52,13 +53,13 @@ const config = module.exports = {
 		return {
 			output: p.public + '/dist/styles.css',
 			compiler: {
-				file: p._bpa.client + '/css/-main.scss',
+				file: bpaCommon( 'css/-main.scss' ),
 				//sourceComments: true,
 				outputStyle: 'expanded',
 				includePaths: [
-					p.client + '/css',
-					appPath(),
-					bpaAppPath(),
+					bpaCommon('css'),
+					appPath('css'),
+					bpaAppPath('css'),
 				]
 			},
 		}
@@ -67,13 +68,13 @@ const config = module.exports = {
 	socketIO: { serveClient: false },
 
 	webpack() {
-		const entries = [p.client, p._bpa.client]
+		const entries = [appPath(), bpaAppPath(), bpaCommon()]
 			.map( a => a + '/entry.js' )
 			.filter( dir => {
 				return $$$.fs.existsSync( dir );
 			} );
 		
-		if ( entries.length == 0 ) throw 'No entry.js file found in either BPA -or- current project folder:\n' + p.client;
+		if ( entries.length == 0 ) throw 'No entry.js file found in either BPA -or- current project folder:\n' + appPath();
 		
 		const entry = entries[0];
 
@@ -133,10 +134,17 @@ const config = module.exports = {
 				alias: {
 					'~bpa': p._bpa.root,
 					'~bpa-libs': p._bpa.server,
-					'~bpa-js': p._bpa.client + '/js',
-					'~bpa-vue': p._bpa.client + '/vue',
-					'~bpa-app': appPath(),
+					'~bpa-app': bpaAppPath(),
+					'~bpa-common': bpaCommon(),
+					'~bpa-vue': bpaCommon( 'vue' ),
+					'~bpa-js': bpaCommon( 'js' ),
+					'~bpa-css': bpaCommon( 'css' ),
+					'~app': appPath(),
+					'~vue': appPath( 'vue' ),
+					'~js': appPath( 'vue' ),
+					'~css': appPath( 'vue' ),
 					'~extensions': p._bpa.server + '/extensions.js',
+					'~constants': p._bpa.server + '/constants.js',
 					'~libs': p.server,
 				}
 			},
