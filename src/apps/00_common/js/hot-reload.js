@@ -41,7 +41,6 @@ export default function SELF() {
 
 		$$$.io.on( EVENTS.FILE_CHANGED, file => {
 			const ext = ( file || '' ).ext();
-			trace( "Changed: " + file );
 
 			switch ( ext ) {
 				case 'vue': trace( "Vue file changed: " + file ); break;
@@ -59,11 +58,13 @@ export default function SELF() {
 
 				case 'scss':
 				case 'sass':
-				case 'silent-types': break;
+				case 'silent-types': return;
 				default:
 					trace( "Another type changed: " + file );
 					break;
 			}
+
+			trace( "Changed: " + file );
 		} );
 	}
 
