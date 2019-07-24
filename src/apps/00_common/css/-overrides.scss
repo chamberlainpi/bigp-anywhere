@@ -9,5 +9,6 @@
 .padded-5 { @include padded(50px); }
 
 .abs { position: absolute; }
+.rel { position: relative; }
 .fixed { position: fixed; }
 .init-hidden { display: none; }
