@@ -3,6 +3,7 @@
  */
 
 const MFS = require( 'memory-fs' );
+const fs = require('fs-extra');
 const yargs = require( 'yargs' );
 
 module.exports = class PluginCommander {
@@ -34,7 +35,7 @@ module.exports = class PluginCommander {
 
 		if ( !_.isString( env.c ) ) {
 			this.promptAllAvailableCommands();
-			return true; //trace.FAIL( 'Command must be provided. EMPTY found.'.red );
+			return true;
 		}
 
 		const commandFile = $$$.paths._bpa.commands + env.c.mustWrapWith( '/', '.js' );
@@ -62,19 +63,32 @@ module.exports = class PluginCommander {
 			
 		} else if ( _.isFunction( cmd.exec ) ) {
 			trace( "Executing command: ".green + env.c )
-			cmd.exec();
+			Promise.resolve()
+				.then( () => cmd.exec() )
+				.catch(err => {
+					if(err=='exit') return process.exit(2);
+					
+					trace.FAIL("Error - Failed command: " + env.c);
+					trace(err);
+				})
 		}
 
 		return true;
 	}
 
 	promptAllAvailableCommands() {
-		var commandPaths = [$$$.paths._bpa.commands, $$$.paths.commands];
+		var commandPaths = [$$$.paths._bpa.commands, $$$.paths.commands].filter(fs.existsSync);
 
 		$$$.filterFiles( commandPaths, '.js' )  //  <-----------------------------------
 			.then( commandFiles => {
 				trace( "Here are the commands:" );
 				trace( commandFiles );
-		})
+
+				process.exit(2);
+			} )
+			.catch( err => {
+				trace.FAIL( "What happened?" );
+				trace( err );
+			} );
 	}
 }

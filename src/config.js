@@ -1,6 +1,8 @@
 const patchResolve = require( './server/sv-patch-resolve' );
 const webpack = require( 'webpack' );
 const path = require( 'path' );
+const VueLoaderPlugin = require( 'vue-loader/lib/plugin' );
+
 const p = $$$.paths;
 const node_modules = [
 	p._bpa.node_modules,
@@ -8,6 +10,8 @@ const node_modules = [
 	p.node_modules,
 	'./node_modules',
 ];
+
+p._bpa.localLibs = $$$.systemEnv( '%BPA_LOCAL_LIBS%' );
 
 patchResolve( { from: p.root, to: p._bpa.root } );
 
@@ -27,14 +31,14 @@ const config = module.exports = {
 	},
 
 	watcher: {
-		timeStartSkip: 5000,
+		delayStart: 500,
+		delayPost: 10,
 	},
 	
 	web() {
 		return {
 			port: 9999,
 			routes: {
-				//'/api/*'(req, res, next) {next()},
 				'/count'( req, res, next ) {
 					res.send( { count: session.count++ } );
 				},
@@ -43,7 +47,8 @@ const config = module.exports = {
 				},
 
 				'/js/extensions.js': p._bpa.server + '/extensions.js',
-
+				'/local': p._bpa.localLibs,
+				
 				'/*': ['*MEMORY*', appPath(), p.public, bpaAppPath(), p._bpa.public],
 			},
 		}
@@ -51,6 +56,7 @@ const config = module.exports = {
 
 	sass() {
 		return {
+			delayEach: 300,
 			output: p.public + '/dist/styles.css',
 			compiler: {
 				file: bpaCommon( 'css/-main.scss' ),
@@ -102,10 +108,7 @@ const config = module.exports = {
 										"wildcard",
 										{
 											"noCamelCase": true,
-											"exts": [
-												"js",
-												"vue"
-											]
+											"exts": ["js", "vue"]
 										}
 									]
 								]
@@ -119,7 +122,6 @@ const config = module.exports = {
 								loaders: {
 									template: 'html-loader',
 									js: 'babel-loader',
-									//scss: 'vue-style-loader!css-loader!sass-loader?indentedSyntax',
 								}
 							}
 						}
@@ -141,8 +143,8 @@ const config = module.exports = {
 					'~bpa-css': bpaCommon( 'css' ),
 					'~app': appPath(),
 					'~vue': appPath( 'vue' ),
-					'~js': appPath( 'vue' ),
-					'~css': appPath( 'vue' ),
+					'~js': appPath( 'js' ),
+					'~css': appPath( 'css' ),
 					'~extensions': p._bpa.server + '/extensions.js',
 					'~constants': p._bpa.server + '/constants.js',
 					'~libs': p.server,
@@ -160,8 +162,14 @@ const config = module.exports = {
 				minimize: $$$.env.isProd,
 			},
 
+			externals: {
+				vue: 'Vue',
+				jquery: 'jQuery'
+			},
+
 			plugins: [
-				new webpack.DefinePlugin( { ENV: JSON.stringify($$$.env) } )
+				new webpack.DefinePlugin( { ENV: JSON.stringify( $$$.env ) } ),
+				new VueLoaderPlugin()
 			]
 		}
 	}

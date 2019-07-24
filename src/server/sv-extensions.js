@@ -212,6 +212,18 @@ _.extend( $$$, {
 		return fs.readFile( file, 'utf8' );
 	},
 
+	readJSON( file, def, opts ) {
+		return Promise.resolve()
+			.then( () => {
+				if ( !fs.existsSync( file ) ) {
+					trace( 'JSON file not found, using default data...'.yellow );
+					return def;
+				}
+
+				return fs.readJSON( file, opts );
+			} );
+	},
+
 	writeFile( file, content ) {
 		return fs.writeFile( file, content, 'utf8' );
 	},
@@ -363,11 +375,64 @@ _.extend( $$$, {
 
 	promptEnter() {
 		return $$$.promptText( "  Press ENTER to continue. (CTRL+C to exit)" );
-	}
+	},
+
+	/////////////////////////////////////////////
+
+	systemEnv( str ) {
+		return str.replace( /%([^%]+)%/g, ( _, n ) => process.env[n] );
+	},
+
+	resError( res, message ) {
+		res.status( 404 ).send( message );
+	},
+	
+	/////////////////////////////////////////////
+
+	JsonHandler(file, def) {
+		const inst = new JsonHandler();
+		inst.data = null;
+		inst.file = file;
+		inst.load( def );
+
+		return inst;
+	},
 } );
 
+class JsonHandler extends Events{
+	save() {
+		const filepath = this.file.toPath();
+
+		return fs.mkdirp( filepath.dir )
+			.then( () => fs.writeJSON( this.file, this.data, { spaces:'  '} ))
+			.then( () => trace.OK( 'JSON written OK!' ) );
+	}
+
+	json() {
+		return JSON.stringify( this.data, null, '  ' );
+	}
+
+	load(def) {
+		return $$$.readJSON( this.file, def )
+			.then( data => {
+				this.data = data;
+				this.emit( 'loaded', this );
+				return this;
+			} );
+	}
+
+	then( fn ) {
+		return new Promise( ( _then, _catch ) => {
+			this.on( 'loaded', function () {
+				fn && fn();
+				_then();
+			} );
+		} );
+	}
+}
+
 const traceSpecial = header => ( o, returnOnly ) => {
-	const msg = header + ' ' + o.trim();
+	const msg = header + ' ' + String(o).trim();
 	!returnOnly && trace( msg );
 	return msg;
 };

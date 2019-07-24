@@ -11,7 +11,7 @@ const check = {
 }
 
 const defaultIgnored = [/node_modules/, /package\.json/, /\.(git|idea|private|gitignore|lock|vscode)/, /_old/];
-let config, watcher, times = {}, handles = [];
+let config, watcher, handles = [];
 
 module.exports = class PluginWatcher {
 	configure() {
@@ -20,11 +20,14 @@ module.exports = class PluginWatcher {
 		if ( !config.dir ) config.dir = ['.', $$$.paths.root];
 		config.ignored = [].concat( defaultIgnored, config.ignored );
 
-		times.start = $$$.now();
-		times.startSkip = config.timeStartSkip || 5000;
+		const delayStart = config.delayStart || 5000;
 
 		watcher = this.watcher = chokidar.watch( config.dir, config );
-		watcher.on( 'all', this.onGlobalFileChanged.bind( this ) );
+		
+		setTimeout( () => {
+			trace.OK( `File-Watcher started. (delayed: ${delayStart}ms)` );
+			watcher.on( 'all', this.onGlobalFileChanged.bind( this ) );
+		}, delayStart );
 		
 		this.isBusy = false;
 
@@ -33,13 +36,8 @@ module.exports = class PluginWatcher {
 
 	onGlobalFileChanged( event, path ) {
 		path = path.fixSlash();
-
-		times.now = $$$.now();
-		times.diff = times.now - times.start;
 		
-		if ( event === 'addDir' || path.has( '_tmp_' ) || ( event === 'add' && times.diff < times.startSkip ) ) {
-			return;
-		}
+		if ( event.has( 'add' ) || path.has( '_tmp_' ) ) return;
 
 		handles.forEach( handle => {
 			const isEventOK = handle.event === '*' || handle.event === event;
@@ -54,18 +52,18 @@ module.exports = class PluginWatcher {
 		this.isBusy = true;
 
 		const _notify = type => {
-			const seconds = 1;
-			trace( `Change ${type} (${seconds}s):\n - ${event.bgGreen} : ${path.green}` );
+			const delayPost = config.delayPost || 1000;
+			trace( `${event.bgGreen} in /${type}/ (${delayPost}ms): ${path.green}` );
 
 			return $$$
-				.wait( seconds * 1000 )
+				.wait( delayPost )
 				.then( () => this.isBusy = false );
 		}
 
 		if ( event === 'change' && check.hasPublic( path ) ) {
-			_notify( 'PUBLIC'.cyan ).then( () => this.onPublicChanged( path ) );
+			_notify( 'public'.cyan ).then( () => this.onPublicChanged( path ) );
 		} else {
-			_notify( 'SERVER'.yellow ).then( () => this.onServerChanged( path ) );
+			_notify( 'server'.yellow ).then( () => this.onServerChanged( path ) );
 		}
 	}
 

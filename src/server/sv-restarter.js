@@ -11,6 +11,10 @@ module.exports = function ( cb ) {
     traceClear();
 
     cluster.on( 'exit', ( worker, code, signal ) => {
+        if(code==2) {
+            trace("Process Exit (2)");
+            return process.exit();
+        }
         console.log( 'Ended process: '.red + worker.process.pid );
         setTimeout( () => {
             traceClear();

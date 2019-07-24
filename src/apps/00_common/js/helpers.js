@@ -39,6 +39,54 @@
 			this.find(clazz).removeClass(clazz);
 
 			return this;
+		},
+
+		addEvents( eventTree ) {
+			const _this = this;
+			const eventObj = _.getOrCreate( this, '_eventObj', {} );
+			const makeListener = ( type, obj ) => {
+				//For keyboard events...
+				if ( type.startsWith( 'key' ) ) {
+					return function ( e ) {
+						const keyname = (e.key || 'null').toLowerCase();
+
+						// Check each of the listener-handlers to see if
+						// their any of their params matches the keyboard key-name pressed.
+						obj.handlers.forEach( h => {
+							if ( !h.params.has( keyname ) ) return;
+							h.cb( e );
+						} );
+					}
+				}
+
+				return function ( e ) {
+					obj.handlers.forEach( h => h.cb(e) );
+				}
+			}
+
+			_.forOwn( eventTree, ( cb, key ) => {
+				key = key.replace( '@', 'keydown:' );
+				
+				const keySplit = key.toLowerCase().split( ':' );
+				const eventName = keySplit.shift();
+				const params = keySplit.length > 0 ? keySplit.shift().split( ',' ) : [];
+				
+				const obj = _.getOrCreate( eventObj, eventName, {
+					handlers: [],
+					listener: null,
+				} );
+
+				if ( !obj.listener ) {
+					obj.listener = makeListener( eventName, obj );
+
+					_this.on( eventName, obj.listener );
+				}
+
+				obj.handlers.push( {
+					params: params,
+					cb: cb
+				} );
+			})
 		}
 	});
 
@@ -67,8 +115,7 @@
 			obj = _.merge({
 				type: 'POST',
 				data: {sending: 1},
-				contentType: "application/json",
-				dataType: 'json',
+				contentType: "text/json",
 				success(ok) {
 					$$$.emit('load-end', obj.url);
 
@@ -84,4 +131,28 @@
 			$.ajax(obj);
 		})
 	};
+
+	$$$.api = function ( url, postData ) {
+		let obj = { url: url };
+
+		$$$.emit( 'load-start', obj.url );
+		
+		return new Promise( ( _then, _catch ) => {
+			obj = _.merge( {
+				type: postData ? 'POST' : 'GET',
+				success( ok ) {
+					$$$.emit( 'load-end', obj.url );
+
+					_then( ok );
+				},
+				error( err ) {
+					$$$.emit( 'load-end', obj.url );
+					
+					_catch( err );
+				}
+			}, obj );
+
+			postData ? $.post( obj, postData ) : $.ajax( obj );
+		} )
+	}
 })();

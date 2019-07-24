@@ -33,14 +33,11 @@ module.exports = class PluginManager {
 
 	loadFromPath( paths, params ) {
 		paths = _.castArray( paths );
+		paths = paths.filter( p => fs.existsSync( p ) );
 
 		const toPromise = path => {
-			if ( !fs.existsSync( path ) ) {
-				return trace.FAIL( 'Cannot add non-existant plugins directory: ' + path );
-			}
-
+			trace( "Attempt to load path: " + path );
 			if ( _this._moduleDirs.has( path ) ) {
-				//trace( "Already loaded plugin path: " + path );
 				return;
 			}
 
@@ -50,7 +47,6 @@ module.exports = class PluginManager {
 				.requireDir( path, _.extend( { filter: 'plugin*' }, params ) )
 				.then( modules => {
 					trace.OK( 'Adding plugins directory: ' + path );
-
 					modules.forEach( pluginCls => {
 						const name = pluginCls.name.remove( 'Plugin' );
 
@@ -72,10 +68,15 @@ module.exports = class PluginManager {
 
 		return Promise.each( paths, toPromise )
 			.then( () => $$$.wait(1000))
-			.then( () => _this );
+			.then( () => _this )
+			.catch( err => {
+				trace.FAIL( "Error loadFromPath():" );
+				trace( err )
+			});
 	}
 
-	callEach(methodName, ... args) {
+	callEach( methodName, ...args ) {
+		trace( "Calling... " + methodName );
 		return this.forEach(methodName, (func, plugin) => {
 			return func.apply(plugin, args);
 		} ).then( () => this );
@@ -111,7 +112,7 @@ module.exports = class PluginManager {
 					}
 					
 					return result2;
-				})
+				} )
 				.then( nextCall );
 		}
 

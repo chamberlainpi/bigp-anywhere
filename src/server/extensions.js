@@ -15,6 +15,9 @@
 		GLOBALS.traceProps = function(o) {
 			trace(_.keys(o));
 		};
+		GLOBALS.traceJSON = function(o) {
+			trace( JSON.stringify( o, null, '  ' ));
+		};
 
 		const traceOnceTags = {};
 		GLOBALS.traceOnce = (tag, msg) => {
@@ -38,12 +41,12 @@
 			combineWith(delim, arr) {
 				return this.split(delim).concat(arr);
 			},
-			before(char, emptyIfNotFound=false) {
-				const id = this.indexOf(char);
+			before(char, emptyIfNotFound=false, isLast=false) {
+				const id = isLast ? this.lastIndexOf( char ) : this.indexOf( char );
 				return id>-1 ? this.substr(0, id) : (emptyIfNotFound ? '' : this+'');
 			},
-			after(char, emptyIfNotFound=false) {
-				const id = this.indexOf(char);
+			after( char, emptyIfNotFound = false, isLast = false) {
+				const id = isLast ? this.lastIndexOf( char ) : this.indexOf( char );
 				return id>-1 ? this.substr(id + 1) : (emptyIfNotFound ? '' : this+'');
 			},
 			ext() {
@@ -60,10 +63,10 @@
 				return this.replace(/\\/g, '/');
 			},
 			mustStartWith(str) {
-				return !this.startsWith(str) ? str + this : this;
+				return !this.startsWith(str) ? str + this : this + '';
 			},
 			mustEndWith(str) {
-				return !this.endsWith(str) ? this + str : this;
+				return !this.endsWith( str ) ? this + str : this + '';
 			},
 			mustWrapWith(a, b) {
 				return this.mustStartWith(a).mustEndWith(b);
@@ -251,6 +254,15 @@
 					setTimeout(resolve.bind(null, v), t)
 				});
 			},
+
+			count( str, ch ) {
+				return _.sumBy( str, x => x === ch );
+			},
+
+			getOrCreate( obj, key, def ) {
+				return obj[key] ? obj[key] : ( obj[key] = def );
+			},
+
 
 			/*
 			 This is useful for creating 'test' configurations that needs a bit of delay

@@ -5,9 +5,9 @@ const fs = require('fs-extra');
 const url = require('url');
 const http = require('http');
 const mime = require('mime-types');
-const express = require('express');
+const express = $$$.express = require( 'express' );
+const bodyParser = require( 'body-parser' );
 const session = require('express-session');
-const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const cookieSession = require('cookie-session');
 const EVENTS = require( '../server/constants' ).EVENTS;
@@ -28,12 +28,23 @@ module.exports = class PluginWeb {
 		config = _.result( $$$.config, 'web' );
 		
 		if ( !config.port ) config.port = 3333;
+
+		$$$.web = this;
 	}
 
 	configure() {
 		$$$.memFS.writeFileSync( "/test.txt", 'Test file.', 'utf8' );
 		$$$.memFS.writeFileSync( "/favicon.ico", '', 'utf8' );
 		
+		app.use( $$$.express.json() );
+		app.use( $$$.express.urlencoded( { extended: true } ) );
+
+		app.use( '/post-test', ( req, res, next ) => {
+			trace.OK( "POST-TEST...")
+			trace( req.body );
+			res.send( { ok: 1 } );
+		} );
+
 		app.use( ( req, res, next ) => {
 			res.on( 'finish', () => {
 				if ( $$$.env.test ) return; //Omit status logs while TESTING the module

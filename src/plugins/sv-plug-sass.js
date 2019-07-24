@@ -10,8 +10,8 @@ let config, fs;
 module.exports = class PluginSass {
 	configure() {
 		config = _.result( $$$.config, 'sass' );
-		if ( !config.delayBlocker ) config.delayBlocker = 500;
-		if ( !config.delayEach ) config.delayEach = 300;
+		if ( !config.delayBlocker ) config.delayBlocker = 250;
+		if ( !config.delayEach ) config.delayEach = 100;
 
 		this.isUsingMem = !$$$.env.isProd;
 		fs = this.isUsingMem ? $$$.memFS : require( 'fs-extra' );

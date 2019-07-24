@@ -1,4 +1,6 @@
 const EVENTS = require( '~constants' ).EVENTS;
+import PortalVue from 'portal-vue/dist/portal-vue.esm';
+import BootstrapVue from 'bootstrap-vue';
 
 const VueSetup = {
 	_components: {},
@@ -7,7 +9,10 @@ const VueSetup = {
 		if ( !config ) throw 'Missing Vue config object!';
 		if ( !config.app ) throw 'Missing Vue <App /> definition! Please provide a config.app parameter!';
 
-		Vue.use(VueRouter);
+		Vue.use( VueRouter );
+		Vue.use( PortalVue );
+		Vue.use( BootstrapVue );
+
 	 	Vue.config.devtools = true;
 
 		config.components = _.castArray( config.components );
@@ -16,12 +21,15 @@ const VueSetup = {
 			config.components.forEach( compKit => {
 				_.forOwn( compKit, VueSetup.registerComponentByName );
 			} );
+
+			trace( "Vue components registered:\n" + Object.keys( VueSetup._components ).sort().join(', ') );
 		}
 
 		//Here's some Vue extensions (to quickly get to some common areas throughout the app).
 		_.classy(Vue.prototype, {
 			$app() { return this.$root.$children[0]; },
 			$global() { return window; },
+			$_() { return _; },
 		}, config.getters);
 
 		_.extend(Vue.prototype, {
@@ -52,12 +60,22 @@ const VueSetup = {
 		}, config.directives);
 
 		Vue.mixin({
-			mounted: function() {
-				const name = this.$options._componentTag;
-				if(!name || !this.$el || !this.$el.classList) return;
-				this.$el.classList.add(name.toLowerCase());
+			mounted() {
+				reapplyComponentClassname( this );
+			},
+
+			updated() {
+				reapplyComponentClassname( this );
 			}
-		});
+		} );
+		
+		function reapplyComponentClassname(_this) {
+			const name = _this.$options._componentTag;
+			
+			if ( !name || !_this.$el || !_this.$el.classList ) return;
+
+			_this.$el.classList.add( name.toLowerCase() );
+		}
 
 		return new Vue({
 			el: '#app',
@@ -75,7 +93,6 @@ const VueSetup = {
 	registerComponentByName( compVue, name ) {
 		if ( !compVue || !name ) return;
 		
-		trace( "Vue-Component + " + name );
 		var comp = Vue.extend(compVue);
 		VueSetup._components[name] = comp;
 		Vue.component(name, comp);
