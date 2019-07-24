@@ -34,9 +34,7 @@ Generates filenames list in a 'filenames.txt' and 'config.ini' to upload for pre
 			})
 			.then(ok => {
 				trace("Wrote file:\n".green + txtFile + "\n" + configFile);
-			})
-			.catch(err => {
-				traceError(err);
+				throw 'exit';
 			});
 	}
 };
