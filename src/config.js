@@ -86,6 +86,7 @@ const config = module.exports = {
 
 		return {
 			mode: 'development',
+			devtool: 'inline-source-map',
 
 			entry: { 'bundle': entry },
 

@@ -12,12 +12,6 @@
                 </i>
                 <i class="label blabla">{{ item.name }}</i>
             </label>
-
-            <!-- <i v-show="item.isOpen"
-                class="add-file fa fa-plus"
-                color="#0a0"
-                @click="$emit('add-file', item)">
-            </i> -->
         </li>
 
         <li v-if="isFolder" v-show="item.isOpen">
@@ -41,7 +35,7 @@ export default {
         isSelectable: Boolean,
         isCheckboxVisible: Boolean
     },
-    data: function () {
+    data() {
         return {};
     },
     computed: {

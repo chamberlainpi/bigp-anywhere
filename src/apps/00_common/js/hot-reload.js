@@ -37,8 +37,6 @@ export default function SELF() {
 	}, TIME_MS);
 
 	if ( $$$.io ) {
-		trace( "Setting up socket.io 'file-changed' event." );
-
 		$$$.io.on( EVENTS.FILE_CHANGED, file => {
 			const ext = ( file || '' ).ext();
 

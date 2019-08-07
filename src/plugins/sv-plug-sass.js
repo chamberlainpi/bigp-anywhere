@@ -61,7 +61,7 @@ module.exports = class PluginSass {
 			if ( this.isUsingMem ) {
 				fs.writeFile( config.output, result.css, err => {
 					if ( err ) return _catch( err );
-					_then();
+					_.deferFrames( 2, _then );
 				} );
 
 				return;

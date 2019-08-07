@@ -20,6 +20,7 @@
     "body-parser": "^1.18.2",
     "bootstrap": "^4.3.1",
     "bootstrap-vue": "^2.0.0-rc.27",
+    "change-case": "^3.1.0",
     "chokidar": "^2.0.3",
     "clean-css": "^4.2.1",
     "clipboardy": "^1.2.3",

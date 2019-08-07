@@ -1,7 +1,5 @@
 <template>
-    <div class="icon">
-        <i :class="'fa fa-'+name" v-forward-events></i>
-    </div>
+    <i :class="'fa fa-'+name" v-forward-events></i>
 </template>
 
 <script>

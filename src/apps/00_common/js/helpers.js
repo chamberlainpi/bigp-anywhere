@@ -49,7 +49,7 @@
 				if ( type.startsWith( 'key' ) ) {
 					return function ( e ) {
 						const keyname = (e.key || 'null').toLowerCase();
-
+						//trace( "keyname: " + keyname );
 						// Check each of the listener-handlers to see if
 						// their any of their params matches the keyboard key-name pressed.
 						obj.handlers.forEach( h => {
@@ -59,12 +59,14 @@
 					}
 				}
 
+				//For all other events, just call all the associated handlers (no conditions applied)...
 				return function ( e ) {
 					obj.handlers.forEach( h => h.cb(e) );
 				}
 			}
 
 			_.forOwn( eventTree, ( cb, key ) => {
+				// The '@' symbol is a shortcut to 'keydown' event, so you can write '@escape' for example.
 				key = key.replace( '@', 'keydown:' );
 				
 				const keySplit = key.toLowerCase().split( ':' );
@@ -147,8 +149,7 @@
 				},
 				error( err ) {
 					$$$.emit( 'load-end', obj.url );
-					
-					_catch( err );
+					_catch( err.responseText );
 				}
 			}, obj );
 

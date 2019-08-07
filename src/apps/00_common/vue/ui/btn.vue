@@ -26,12 +26,6 @@
     		colorOver() {
     			return tinycolor(this.color).lighten(20);
             }
-        },
-
-        mounted() {
-            // $(this.$el).mousedown( () => {
-            //     TweenMax.fromTo(this.$el, 0.2, {scaleX:1.2, scaleY:1.2}, {scaleX:1, scaleY:1, ease:Back.easeOut});
-            // });
         }
     }
 </script>

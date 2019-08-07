@@ -74,12 +74,6 @@ _.extend( $$$, {
 		
 		return fs.readdir( path ).then( filterDirs );
 	},
-	
-	wait( time ) {
-		return new Promise( ( _then, _catch ) => {
-			setTimeout( _then, time );
-		} );
-	},
 
 	deferPromise( cb ) {
 		return new Promise( ( _then, _catch ) => {
@@ -384,6 +378,8 @@ _.extend( $$$, {
 	},
 
 	resError( res, message ) {
+		trace.FAIL( message );
+		//res.message = message;
 		res.status( 404 ).send( message );
 	},
 	
@@ -430,12 +426,3 @@ class JsonHandler extends Events{
 		} );
 	}
 }
-
-const traceSpecial = header => ( o, returnOnly ) => {
-	const msg = header + ' ' + String(o).trim();
-	!returnOnly && trace( msg );
-	return msg;
-};
-
-trace.OK = traceSpecial( '--OK--'.bgGreen );
-trace.FAIL = traceSpecial( '--X--'.bgRed );

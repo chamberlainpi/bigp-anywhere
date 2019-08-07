@@ -67,7 +67,6 @@ module.exports = class PluginManager {
 		};
 
 		return Promise.each( paths, toPromise )
-			.then( () => $$$.wait(1000))
 			.then( () => _this )
 			.catch( err => {
 				trace.FAIL( "Error loadFromPath():" );

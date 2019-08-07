@@ -7,28 +7,7 @@
 	const GLOBALS = isNode ? global : window;
 
 	function init() {
-		GLOBALS.trace = console.log.bind(console);
-		GLOBALS.traceError = console.error.bind(console);
-		GLOBALS.traceClear = isNode ?
-			function() { global['process'].stdout.write('\x1Bc'); } :
-			console.clear.bind(console);
-		GLOBALS.traceProps = function(o) {
-			trace(_.keys(o));
-		};
-		GLOBALS.traceJSON = function(o) {
-			trace( JSON.stringify( o, null, '  ' ));
-		};
-
-		const traceOnceTags = {};
-		GLOBALS.traceOnce = (tag, msg) => {
-			if(!msg) msg = tag;
-			else if(isNode) msg = `[${tag}]`.bgRed + `: ${msg}`;
-
-			if(traceOnceTags[tag]) return;
-			traceOnceTags[tag] = true;
-
-			trace(msg);
-		}
+		setupAllTraceMethods();
 
 		_.extend(String.prototype, {
 			has() {
@@ -175,7 +154,12 @@
 			},
 			now() {
 				return new Date().getTime();
-			}
+			},
+			wait( time ) {
+				return new Promise( ( _then, _catch ) => {
+					setTimeout( _then, time );
+				} );
+			},
 		});
 
 		const tick = isNode ? process.nextTick : requestAnimationFrame;
@@ -339,6 +323,62 @@
 	}
 
 	init();
+
+	function setupAllTraceMethods() {
+		GLOBALS.trace = console.log.bind( console );
+		GLOBALS.traceError = console.error.bind( console );
+		GLOBALS.traceClear = isNode ?
+			function () { global['process'].stdout.write( '\x1Bc' ); } :
+			console.clear.bind( console );
+		GLOBALS.traceProps = function ( o ) {
+			trace( _.keys( o ) );
+		};
+		GLOBALS.traceJSON = function ( o ) {
+			trace( JSON.stringify( o, null, '  ' ) );
+		};
+
+		const traceOnceTags = {};
+		GLOBALS.traceOnce = ( tag, msg ) => {
+			if ( !msg ) msg = tag;
+			else if ( isNode ) msg = `[${tag}]`.bgRed + `: ${msg}`;
+
+			if ( traceOnceTags[tag] ) return;
+			traceOnceTags[tag] = true;
+
+			trace( msg );
+		}
+
+		if ( isNode ) {
+			const traceInColor = header => ( o, returnOnly ) => {
+				const msg = header + ' ' + String( o ).trim();
+				!returnOnly && trace( msg );
+				return msg;
+			};
+
+			_.extend( GLOBALS.trace, {
+				OK: traceInColor( '--OK--'.bgGreen ),
+				FAIL: traceInColor( '-FAIL-'.bgRed ),
+				INFO: traceInColor( '-INFO-'.bgBlue ),
+				WARN: traceInColor( '-WARN-'.bgYellow ),
+			} );
+
+		} else {
+			const traceInStyle = ( header, clr ) => ( msg ) => {
+				trace( '%c' + header + '%c ' + msg, `background: ${clr}; color: white;`, `background: transparent; color: ${clr}` );
+			}
+
+			_.extend( GLOBALS.trace, {
+				OK: traceInStyle( '--OK--', '#0a0' ),
+				FAIL: traceInStyle( '-FAIL-', '#f00' ),
+				INFO: traceInStyle( '-INFO-', '#00a' ),
+				WARN: traceInStyle( '-WARN-', '#fa0' ),
+				stack( value = 'stack-trace' ) {
+					//trace( new Error() );
+					console.trace( value );
+				}
+			} );
+		}
+	}
 
 })();
 

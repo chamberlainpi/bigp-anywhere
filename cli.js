@@ -6,6 +6,7 @@ require( './src/server/sv-restarter' )( () => {
 	const PLUGIN_FILTERS = { filter: 'sv-plug*' };
 	const PluginManager = require( './src/server/sv-plugin-manager' );
 	const paths = $$$.paths = require( './src/server/sv-paths' );
+	const opn = $$$.opn = require( 'opn' );
 	const configPaths = [paths._bpa.src, paths.src, paths.private];
 
 	$$$.config = $$$.mergeIfExists( configPaths, '/config.js' );
