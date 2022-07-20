@@ -43,7 +43,7 @@
     "sass-loader": "^7.0.1",
     "socket.io": "^2.1.0",
     "style-loader": "^0.20.3",
-    "terser": "^3.14.1",
+    "terser": "^4.8.1",
     "vue": "^2.6.10",
     "vue-loader": "^15.7.0",
     "vue-router": "^3.0.7",
